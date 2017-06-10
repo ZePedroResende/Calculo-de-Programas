@@ -762,19 +762,34 @@ prop_wcTest =
 
 \subsection*{Problema 3}
 \begin{code}
-inB_tree = undefined
-outB_tree = undefined
 
-recB_tree f = undefined
-baseB_tree g f = undefined
-cataB_tree g = undefined
-anaB_tree g = undefined
-hyloB_tree f g = undefined
+outB_tree :: B_tree a -> Either () (B_tree a , [(a, B_tree a)]) 
+outB_tree Nil = i1 ()
+outB_tree (Block t l) = i2 (t, l)
+
+inB_tree  :: Either () (B_tree a , [(a, B_tree a)]) -> B_tree a
+inB_tree = either (const Nil) (uncurry Block)
+
+baseB_tree :: (a -> b) -> (c -> d) -> Either () (c, [(a, c)]) -> Either () (d, [(b, d)])
+baseB_tree f g = id -|- (g >< (map (f >< g)))
+
+recB_tree ::  (a -> b) -> Either () (a , [(d, a)]) -> Either () (b , [(d, b)])
+recB_tree g = baseB_tree id g
+
+cataB_tree :: ((Either () (b , [(a, b)])) -> b) -> B_tree a -> b
+cataB_tree g = g . (recB_tree (cataB_tree g)) . outB_tree
+
+anaB_tree :: (a -> Either () (a , [(b , a)])) -> a -> B_tree b
+anaB_tree g = inB_tree . (recB_tree (anaB_tree g)) . g
+
+hyloB_tree :: ((Either () (c , [(b, c)])) -> c) -> (a -> Either () (a , [(b , a)])) -> a -> c
+hyloB_tree h g = cataB_tree h . anaB_tree g 
 
 instance Functor B_tree
          where fmap f = undefined
 
-inordB_tree = undefined
+inordB_tree :: B_tree t -> [t]
+inordB_tree = cataB_tree (either nil (conc . (id >< (concat . (map cons)))))
 
 largestBlock = undefined
 
