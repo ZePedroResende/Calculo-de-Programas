@@ -711,24 +711,29 @@ outras funções auxiliares que sejam necessárias.
 \subsection*{Problema 1}
 
 \begin{code}
---inv x = for  ((1+) .((1-x)*)) 1
-{--
+inv x = p2. (for (split (((1-x)*).p1) ((uncurry(+)). (((1-x)*)>< id))) (1,1)) 
 
+prop_inv x = (x>1 && x<2) ==> abs((inv (inv x 5000) 5000) - x) < diferenca
+                              where diferenca = 0.000000009 
+
+\end{code}
+Inversa antes da conversao de uma catamorfismo de naturais para um for 
+\verbatim{begin}
 inv x =   p2.cataNat (y)
   where
         y = split z p
         p = either (const 1) ((uncurry(+)).(((1-x)*) ><  id))
-        z = either (const 1) (((1-x)*)).(id -|- p1)
+        z = either (const 1) (((1-x)*)).(id + p1)
+
+\verbatim{end}
 
 
---}
 
-inv x = p2. (for (split (((1-x)*).p1) ((uncurry(+)). (((1-x)*)>< id))) (1,1)) 
+Outra resolução da inversa atravez do seguinte raciocinio :
 
-invteste x = (x>1 && x<2) ==> abs((inv (inv x 5000) 5000) - x) < diferenca
-                              where diferenca = 0.000000009 
-
-\end{code}
+\verbatim{begin}
+inv x = for  ((1+) .((1-x)*)) 1
+\verbatim{end}
 
 \subsection*{Problema 2}
 \begin{code}
@@ -749,31 +754,41 @@ genSafeString = listOf genSafeChar
 newtype SafeString = SafeString { unwrapSafeString :: String }
     deriving Show
 
---instance Arbitrary SafeString where
---    arbitrary = SafeString <$> genSafeString
 
-w :: [Char] -> Int
-w = length . words
-
-prop_wcTest = forAll genSafeString $ \str -> (wc_w_final str) == (w str)
+prop_wc_w_final= forAll genSafeString $ \str -> (wc_w_final str) == (length $ words str)
 
 \end{code}
-
+https://stackoverflow.com/questions/20934506/haskell-quickcheck-how-to-generate-only-printable-strings
 \subsection*{Problema 3}
 \begin{code}
-inB_tree = undefined
-outB_tree = undefined
 
-recB_tree f = undefined
-baseB_tree g f = undefined
-cataB_tree g = undefined
-anaB_tree g = undefined
-hyloB_tree f g = undefined
+outB_tree :: B_tree a -> Either () (B_tree a , [(a, B_tree a)]) 
+outB_tree Nil = i1 ()
+outB_tree (Block t l) = i2 (t, l)
+
+inB_tree  :: Either () (B_tree a , [(a, B_tree a)]) -> B_tree a
+inB_tree = either (const Nil) (uncurry Block)
+
+baseB_tree :: (a -> b) -> (c -> d) -> Either () (c, [(a, c)]) -> Either () (d, [(b, d)])
+baseB_tree f g = id -|- (g >< (map (f >< g)))
+
+recB_tree ::  (a -> b) -> Either () (a , [(d, a)]) -> Either () (b , [(d, b)])
+recB_tree g = baseB_tree id g
+
+cataB_tree :: ((Either () (b , [(a, b)])) -> b) -> B_tree a -> b
+cataB_tree g = g . (recB_tree (cataB_tree g)) . outB_tree
+
+anaB_tree :: (a -> Either () (a , [(b , a)])) -> a -> B_tree b
+anaB_tree g = inB_tree . (recB_tree (anaB_tree g)) . g
+
+hyloB_tree :: ((Either () (c , [(b, c)])) -> c) -> (a -> Either () (a , [(b , a)])) -> a -> c
+hyloB_tree h g = cataB_tree h . anaB_tree g 
 
 instance Functor B_tree
          where fmap f = undefined
 
-inordB_tree = undefined
+inordB_tree :: B_tree t -> [t]
+inordB_tree = cataB_tree (either nil (conc . (id >< (concat . (map cons)))))
 
 largestBlock = undefined
 
@@ -791,42 +806,18 @@ cB_tree2Exp = undefined
 \subsection*{Problema 4}
 
 \begin{code}
-{--
-
-type Algae = A
-data A = NA | A A B deriving Show
-data B = NB | B A deriving Show
-
-inA :: Either Null (Prod A B) -> A
-inA = either (const NA)(uncurry A)
-
-outA :: A -> Either Null (Prod A B)
-outA NA = Left ()
-outA (A a b) = Right (a,b)
-
-inB :: Either Null A -> B
-inB = either (const NB) B
-
-outB :: B -> Either Null A
-outB NB = Left ()
-outB (B a) = Right a
---}
-
 anaA ga gb= inA . ((id)-|- ((anaA ga gb) >< (anaB ga gb))) . ga
 anaB ga gb= inB . ((id)-|- (anaA ga gb)) . gb
 \end{code}
 
 \begin{code}
---generateAlgae 0 =  NA
 
 generateAlgae = anaA ((id -|- (split id id)). outNat) outNat
---showAlgae = 
 
---showAlgae =  (anaA  (either (const "A")  (conc.id)) (either (const "B") (id)))
 showAlgae = cataA (either (const "A") (conc.id)) (either (const "B") (id))
 
-iteste :: Int -> Property 
-iteste x = ( x>= 0 && x<20) ==> (a x) == ( b x ) 
+prop_Algae:: Int -> Property 
+prop_Algae x = ( x>= 0 && x<20) ==> (a x) == ( b x ) 
     where
         a =   length . showAlgae . generateAlgae  
         b =  fromInteger . fib.succ  . toInteger 
