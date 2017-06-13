@@ -1005,9 +1005,6 @@ instance Functor B_tree
 
 --(2)------------------------------------------------------------
 \end{code}
-\hfill \break
-Diagrama da função \emph{inordB\_tree}:
-\hfill \break
 
 \xymatrix@@C=3cm{
     |B_tree a|
@@ -1027,18 +1024,27 @@ Diagrama da função \emph{inordB\_tree}:
 inordB_tree :: B_tree t -> [t]
 inordB_tree = cataB_tree inordB_tree_gene
 
+\end{code}
+\xymatrix@@C=3cm{
+&   |1 + ((a)above >< (a >< (a)above)above)|
+            \ar[d]^-{|cons ([])|}
+            \ar[rd]^-{|id >< concat . (map cons)|}
+\\
+&
+    |(a)above|
+&
+    |(a)above >< (a)above|
+            \ar[l]^-{|conc|}
+}
+\begin{code}
+
 inordB_tree_gene :: Either () ([a], [(a,[a])]) -> [a]
 inordB_tree_gene = (either nil (conc . (id >< (concat . (map cons)))))
 
 --(3)------------------------------------------------------------
 \end{code}
 
-\hfill \break
-Diagrama da função \emph{largestBlock}:
-\hfill \break
-
 \xymatrix@@C=3cm{
-\hfill \break
     |B_tree a|
            \ar[d]_-{|outB_tree|}
            \ar[r]_-{|cata (g) = largestBlock|}
@@ -1077,12 +1083,80 @@ mirrorB_tree :: B_tree a -> B_tree a
 mirrorB_tree = anaB_tree g
     where   g = (id -|- (toTuple . reverse . toEither)) . outB_tree
 
+\end{code}
+
+\xymatrix@@C=3cm{
+&
+    |(a + b)above|
+           \ar[d]_-{|partitionEithers|}
+\\
+&
+    |(a)above + (b)above|
+           \ar[dl]_-{|head . p2|}
+           \ar[dr]_-{|(uncurry zip) . (id >< tail)|}
+\\
+    |b|
+&
+    |(b >< (a >< b)above|
+           \ar[l]_-{|p1|}
+           \ar[r]_-{|p2|}
+&
+    |(a >< b)above|
+}
+
+\begin{code}
+
 toTuple :: [Either a b] -> (b, [(a,b)])
 toTuple = (split (head . p2) (uncurry zip . (id >< tail))) . partitionEithers
-
+\end{code}
+\xymatrix@@C=3cm{
+&
+    |b >< (a >< b)above|
+           \ar[ddl]_-{|i2 . p1|}
+           \ar[rd]_-{|(map listTuple) . p2|}
+\\
+&
+&
+    |((a + b)above)above|
+           \ar[d]_-{|concat|}
+\\
+    |0 + b|
+&
+    |(0 + b) >< (a + b)above|
+           \ar[r]_-{|p2|}
+           \ar[l]_-{|p1|}
+           \ar[d]_-{|cons|}
+&
+    |(a + b)above|
+\\
+&
+    |(a + b)above|
+}
+\begin{code}
 toEither :: (b, [(a,b)]) -> [Either a b]
 toEither = cons . (i2 >< (concat . map listTuple))
-
+\end{code}
+\xymatrix@@C=3cm{
+&
+    |a >< b|
+           \ar[dl]_-{|i1 . p1|}
+           \ar[rd]_-{|(split i2 nil) . p2|}
+\\
+    |a + 0|
+&
+&
+    |(0 + b) >< []|
+\\
+&
+    |(a + 0) >< (0 + b) >< []|
+           \ar[ul]_-{|p1|}
+           \ar[ru]_-{|p2|}
+           \ar[d]_-{|cons|}
+\\
+&
+    |(a + b)above|
+}
+\begin{code}
 listTuple :: (a,b) -> [Either a b]
 listTuple = cons . (i1 >< (cons . (split i2 (const []))))
 
@@ -1123,10 +1197,6 @@ lsplitB_tree (h:t) = i2 (l,[(h,r)])
 
 \end{code}
 
-\hfill \break
-Diagrama da função \emph{mypart}:
-\hfill \break
-
 \xymatrix@@C=3cm{
 \hfill \break
     |L|
@@ -1159,27 +1229,23 @@ dotB_tree :: Show a => B_tree a -> IO ExitCode
 dotB_tree = dotpict . bmap nothing (Just . show) . cB_tree2Exp
 
 \end{code}
-\hfill \break
-Diagrama da função \emph{inordB\_tree}:
-\hfill \break
-
 \xymatrix@@C=3cm{
     |B_tree a|
            \ar[d]_-{|outB_tree|}
-           \ar[r]_-{|cata (g) = inordB_tree|}
+           \ar[r]_-{|cata (g) = cB_tree2Exp|}
 &
-    |L|
+    |Exp String (a)above|
 \\
     |1 + B_tree a >< (a >< B_tree a)above|
            \ar[r]^-{|id + cata (g) >< map(id >< cata(g))|}
 &
-    |1 + L >< (a >< L)above|
+    |1 + (Exp String (a)above) >< (a >< (Exp String (a)above()above|
            \ar[u]^-{|g|}
 }
 
 \begin{code}
 cB_tree2Exp :: B_tree a -> Exp [Char] [a]
-cB_tree2Exp = cataB_tree (either (const $ Var "nil") aux)
+cB_tree2Exp = cataB_tree (either (const (Var "nil")) aux)
         where aux = (uncurry Term) . (split ((map p1) . p2) (cons . (id >< ((map p2)))))
 
 \end{code}
