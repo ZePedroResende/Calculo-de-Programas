@@ -713,24 +713,29 @@ outras funções auxiliares que sejam necessárias.
 \subsection*{Problema 1}
 
 \begin{code}
---inv x = for  ((1+) .((1-x)*)) 1
- {--
+inv x = p2. (for (split (((1-x)*).p1) ((uncurry(+)). (((1-x)*)>< id))) (1,1)) 
 
+prop_inv x = (x>1 && x<2) ==> abs((inv (inv x 5000) 5000) - x) < diferenca
+                              where diferenca = 0.000000009 
+
+\end{code}
+Inversa antes da conversao de uma catamorfismo de naturais para um for 
+\verbatim{begin}
 inv x =   p2.cataNat (y)
   where
         y = split z p
         p = either (const 1) ((uncurry(+)).(((1-x)*) ><  id))
-        z = either (const 1) (((1-x)*)).(id -|- p1)
+        z = either (const 1) (((1-x)*)).(id + p1)
+
+\verbatim{end}
 
 
---} 
 
-inv x = p2. (for (split (((1-x)*).p1) ((uncurry(+)). (((1-x)*)>< id))) (1,1)) 
+Outra resolução da inversa atravez do seguinte raciocinio :
 
-invteste x = (x>1 && x<2) ==> abs((inv (inv x 5000) 5000) - x) < diferenca
-                              where diferenca = 0.000000009 
-
-\end{code}
+\verbatim{begin}
+inv x = for  ((1+) .((1-x)*)) 1
+\verbatim{end}
 
 \subsection*{Problema 2}
 \begin{code}
@@ -751,17 +756,11 @@ genSafeString = listOf genSafeChar
 newtype SafeString = SafeString { unwrapSafeString :: String }
     deriving Show
 
---instance Arbitrary SafeString where
---    arbitrary = SafeString <$> genSafeString
 
-w :: [Char] -> Int
-w = length . words
+prop_wc_w_final= forAll genSafeString $ \str -> (wc_w_final str) == (length $ words str)
 
-prop_wcTest = 
-    forAll genSafeString $ \str -> (wc_w_final str) == (w str)
-  
 \end{code}
-
+https://stackoverflow.com/questions/20934506/haskell-quickcheck-how-to-generate-only-printable-strings
 \subsection*{Problema 3}
 \begin{code}
 
@@ -825,15 +824,23 @@ cB_tree2Exp = undefined
 \subsection*{Problema 4}
 
 \begin{code}
-anaA = undefined
-
-anaB = undefined
+anaA ga gb= inA . ((id)-|- ((anaA ga gb) >< (anaB ga gb))) . ga
+anaB ga gb= inB . ((id)-|- (anaA ga gb)) . gb
 \end{code}
 
 \begin{code}
-generateAlgae = undefined 
 
-showAlgae = undefined
+generateAlgae = anaA ((id -|- (split id id)). outNat) outNat
+
+showAlgae = cataA (either (const "A") (conc.id)) (either (const "B") (id))
+
+prop_Algae:: Int -> Property 
+prop_Algae x = ( x>= 0 && x<20) ==> (a x) == ( b x ) 
+    where
+        a =   length . showAlgae . generateAlgae  
+        b =  fromInteger . fib.succ  . toInteger 
+
+
 \end{code}
 
 \subsection*{Problema 5}
