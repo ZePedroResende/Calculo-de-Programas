@@ -33,6 +33,7 @@
 %format (frac (a) (b)) = "\frac{" a "}{" b "}"
 %format (uncurry f) = "\uncurry{" f "}"
 %format (const f) = "\underline{" f "}"
+%format (nil) = "\underline{" [] "}"
 %format TLTree = "\mathsf{TLTree}"
 %format cond p f g = "\mcond{" p "}{" f "}{" g "}"
 %format (split (x) (y)) = "\conj{" x "}{" y "}"
@@ -41,6 +42,7 @@
 %format B_tree = "\mathsf{B}\mbox{-}\mathsf{tree} "
 \def\ana#1{\mathopen{[\!(}#1\mathclose{)\!]}}
 %format (cata (f)) = "\cata{" f "}"
+%format (ana (f)) = "\ana{" f "}"
 %format (cataA (f) (g)) = "\cata{" f "~" g "}_A"
 %format (anaA (f) (g)) = "\ana{" f "~" g "}_A"
 %format (cataB (f) (g)) = "\cata{" f "~" g "}_B"
@@ -992,7 +994,6 @@ Diagrama da função \emph{inordB\_tree}:
 \hfill \break
 
 \xymatrix@@C=3cm{
-\hfill \break
     |B_tree a|
            \ar[d]_-{|outB_tree|}
            \ar[r]_-{|cata (g) = inordB_tree|}
@@ -1041,6 +1042,20 @@ largestBlock = cataB_tree (either (const 0) ((uncurry max) . (id >< ((uncurry ma
 --(4)------------------------------------------------------------
 \end{code}
 
+\xymatrix@@C=3cm{
+    |B_tree a|
+           \ar[r]_-{|ana (g) = mirrorB_tree|}
+           \ar[d]^-{|g|}
+&
+    |B_tree a|
+\\
+    |1 + B_tree a2 >< (B_tree a >< B_tree a1)above|
+           \ar[r]^-{|id + ana (g) >< map(id >< ana(g))|}
+&
+    |1 + NAT >< (a >< NAT)above|
+           \ar[u]_-{|inB_tree|}
+}
+
 \begin{code}
 mirrorB_tree :: B_tree a -> B_tree a
 mirrorB_tree = anaB_tree g
@@ -1056,6 +1071,31 @@ listTuple :: (a,b) -> [Either a b]
 listTuple = cons . (i1 >< (cons . (split i2 (const []))))
 
 --(5)------------------------------------------------------------
+\end{code}
+
+\xymatrix@@C=3cm{
+    |(a)above|
+&
+    |1 + (a)above >< (a >< (a)above)above|
+           \ar[l]_-{|h|}
+\\
+    |B|
+           \ar[r]^-{|outB_tree|}
+           \ar[u]^-{|cata(h) = inordB_tree|}
+&
+    |1 + B >< (a >< B)above|
+           \ar[l]^-{|inB_tree|}
+           \ar[u]^-{|id + cata (h) >< map(id >< cata(h))|}
+\\
+    |(a)above|
+           \ar[r]^-{|g = lsplitB_tree|}
+           \ar[u]^-{|ana (g)|}
+&
+    |1 + (a)above >< (a >< (a)above)above|
+           \ar[u]^-{|id + ana (g) >< map(id >< ana(g))|}
+}
+
+\begin{code}
 
 qSortB_tree :: Ord a => [a] -> [a]
 qSortB_tree = hyloB_tree inordB_tree_gene lsplitB_tree
@@ -1085,6 +1125,7 @@ Diagrama da função \emph{mypart}:
     |1 + a >< ((L1)above >< (L2)above)|
            \ar[u]^-{|g|}
 }
+
 \begin{code}
 
 mypart :: (a -> Bool) -> [a] -> ([a],[a])
@@ -1101,6 +1142,26 @@ toSND = split (p1 . p2) (cons . (id >< p2))
 dotB_tree :: Show a => B_tree a -> IO ExitCode
 dotB_tree = dotpict . bmap nothing (Just . show) . cB_tree2Exp
 
+\end{code}
+\hfill \break
+Diagrama da função \emph{inordB\_tree}:
+\hfill \break
+
+\xymatrix@@C=3cm{
+    |B_tree a|
+           \ar[d]_-{|outB_tree|}
+           \ar[r]_-{|cata (g) = inordB_tree|}
+&
+    |L|
+\\
+    |1 + B_tree a >< (a >< B_tree a)above|
+           \ar[r]^-{|id + cata (g) >< map(id >< cata(g))|}
+&
+    |1 + L >< (a >< L)above|
+           \ar[u]^-{|g|}
+}
+
+\begin{code}
 cB_tree2Exp :: B_tree a -> Exp [Char] [a]
 cB_tree2Exp = cataB_tree (either (const $ Var "nil") aux)
         where aux = (uncurry Term) . (split ((map p1) . p2) (cons . (id >< ((map p2)))))
