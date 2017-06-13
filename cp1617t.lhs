@@ -1197,7 +1197,7 @@ cB_tree2Exp = cataB_tree (either (const $ Var "nil") aux)
  \just{|<=>|}{44}
 \end{eqnarray*}
 
-Sabendo que o funtor em ambos os casos Ã© 1 + X e pela regra 44 do formulario conseguimos  entao retirar que F k em cada um dos catas Ã© : 
+Sabendo que o funtor em ambos os casos é 1 + X e pela regra 44 do formulario conseguimos  entao retirar que F k em cada um dos catas é : 
 \begin{eqnarray*}
 \start
     |lcbr (id + cataA >< cataB)
@@ -1353,8 +1353,8 @@ prop_Algae x = ( x>= 0 && x<20) ==> (a x) == ( b x )
 
 
 \subsection*{Problema 5}
-Decidimos primeiro resolver este problema como se fosse nÃ£o monÃ¡dico, como foi sugerido pelo Professor JosÃ© Nuno Oliveira. 
-Assim, foram definidas funÃ§Ãµes nÃ£o monÃ¡dicas equivalentes Ã s fornecidas no enunciado, possibilitando testar o raciocinio necessÃ¡rio para implementar a versÃ£o monÃ¡dica. 
+Decidimos primeiro resolver este problema como se fosse não monádico, como foi sugerido pelo Professor José Nuno Oliveira. 
+Assim, foram definidas funções não monádicas equivalentes às fornecidas no enunciado, possibilitando testar o raciocinio necessário para implementar a versão monádica. 
 
 \begin{code}
 getH :: [a] -> (a,[a])
@@ -1384,7 +1384,7 @@ eliminatoriaN (Fork (x,y)) = jogoN(eliminatoriaN(x),eliminatoriaN(y))
 testePreMonad = eliminatoriaN $ sorteio $ equipas 
 \end{code}
 
-Apos implementado esta versÃ£o foi utilizado os slides "Monads made easy" disponibilizados na pagina da disciplina para a "monadification" do codigo. 
+Apos implementado esta versão foi utilizado os slides "Monads made easy" disponibilizados na pagina da disciplina para a "monadification" do codigo. 
 \begin{code}
 permuta []= return []
 permuta a = do {(c,d) <-getR(a) ;  b <-permuta (d); return (c:b) }
