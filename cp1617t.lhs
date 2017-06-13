@@ -56,6 +56,8 @@
 %format IO = "\fun{IO}"
 %format BTree = "\fun{BTree} "
 %format LTree = "\mathsf{LTree}"
+%format (lcbr (x)(y)) = "\begin{lcbr}" x "\\" y "\end{lcbr}"
+\newenvironment{lcbr}{\left\{\begin{array}{l}}{\end{array}\right.}
 %-------------- interface with pdbc.lhs ------------------------------------
 \def\monadification{4.10}
 %---------------------------------------------------------------------------
@@ -89,7 +91,7 @@
 \\\hline
 a77486 & Jose Pedro Resende
 \\
-a22222 & Nome2 (preencher)	
+a79007 & Patrícia Barreira	
 \\
 a33333 & Nome3 (preencher)	
 \end{tabular}
@@ -718,24 +720,23 @@ prop_inv x = (x>1 && x<2) ==> abs((inv (inv x 5000) 5000) - x) < diferenca
 
 \end{code}
 Inversa antes da conversao de uma catamorfismo de naturais para um for 
-\verbatim{begin}
+\begin{Verbatim}
+
 inv x =   p2.cataNat (y)
   where
         y = split z p
         p = either (const 1) ((uncurry(+)).(((1-x)*) ><  id))
         z = either (const 1) (((1-x)*)).(id + p1)
+\end{Verbatim}
 
-\verbatim{end}
+Outra resolução da inversa atraves do seguinte raciocinio :
 
-
-
-Outra resolução da inversa atravez do seguinte raciocinio :
-
-\verbatim{begin}
+\begin{Verbatim}
 inv x = for  ((1+) .((1-x)*)) 1
-\verbatim{end}
+\end{Verbatim}
 
 \subsection*{Problema 2}
+
 \begin{code}
 wc_w_final :: [Char] -> Int
 wc_w_final = wrapper . worker
@@ -758,6 +759,43 @@ newtype SafeString = SafeString { unwrapSafeString :: String }
 prop_wc_w_final= forAll genSafeString $ \str -> (wc_w_final str) == (length $ words str)
 
 \end{code}
+
+
+ A resolução deste exercicio consistiu em duas partes: Encontrar o Funtor do worker e
+
+\begin{eqnarray*}
+%
+\start
+%
+  |lcbr (lookahead []= true)(lookahead (c:l)= (c == ' ' || c == '\n' || c == '\t'))|
+
+  \end{cases}
+%
+\just={lookaheap=l ; def sep c ; []=nil ; def cons ; lei-81}
+%
+    |lcbr (l.nil= true) (l.cons(c,l)=sep.p1.(c,l))|    
+%
+\just={lei-73}
+%
+    |lcbr (l.nil =true) (l.cons = sep.p1)|
+%
+\just={lei-17 ; in lista=|(either (nil) (cons))| ; lei-76}
+%
+    |l.in=(either (const true) (sep.p1) )|
+%
+\just={lei-1}
+%
+  |l.in=(either ((const true).id) (sep.id.p1) )|
+%
+ \end{eqnarray*}
+
+
+
+
+
+
+{ in=(either (const 0) succ); f=inv; g=macL; F(split f g)=F(split inv macL)=( id + (split inv macL)) }
+
 https://stackoverflow.com/questions/20934506/haskell-quickcheck-how-to-generate-only-printable-strings
 \subsection*{Problema 3}
 \begin{code}
