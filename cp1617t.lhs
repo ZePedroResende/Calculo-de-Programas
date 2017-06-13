@@ -184,6 +184,8 @@ import Test.QuickCheck hiding ((><))
 import System.Random  hiding (split)
 import GHC.IO.Exception
 import System.IO.Unsafe
+import Data.Maybe
+import Data.Either
 \end{code}
 
 \noindent Abra o ficheiro \texttt{cp1617t.lhs} no seu editor de texto preferido
@@ -786,15 +788,31 @@ hyloB_tree :: ((Either () (c , [(b, c)])) -> c) -> (a -> Either () (a , [(b , a)
 hyloB_tree h g = cataB_tree h . anaB_tree g 
 
 instance Functor B_tree
-         where fmap f = undefined
+         where fmap f = cataB_tree (inB_tree . baseB_tree f id)
 
 inordB_tree :: B_tree t -> [t]
 inordB_tree = cataB_tree (either nil (conc . (id >< (concat . (map cons)))))
 
-largestBlock = undefined
+largestBlock :: B_tree a -> Int
+largestBlock = cataB_tree (either (const 0) ((uncurry max) . (id >< ((uncurry max) . (split length (maximum . (map p2)))))))
 
-mirrorB_tree = undefined
+-- mirrorB_tree----------------------------------------------
+mirrorB_tree :: B_tree a -> B_tree a
+mirrorB_tree = anaB_tree g
+    where   g = (id -|- (toTuple . reverse . toEither)) . outB_tree
 
+toTuple :: [Either a b] -> (b, [(a,b)])
+toTuple = (split (head . p2) (uncurry zip . (id >< tail))) . partitionEithers
+
+toEither :: (b, [(a,b)]) -> [Either a b]
+toEither = cons . (i2 >< (concat . map listTuple))
+
+listTuple :: (a,b) -> [Either a b]
+listTuple = cons . (i1 >< (cons . (split i2 (const []))))
+
+------------------------------------------------------------
+
+lsplitB_tree :: [a] -> Either () ([a], [(a, [a])])
 lsplitB_tree = undefined
 
 qSortB_tree = undefined
