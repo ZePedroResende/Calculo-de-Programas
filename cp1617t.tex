@@ -4,6 +4,8 @@
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
 \usepackage{graphicx}
 \usepackage{cp1617t}
+\usepackage{hyperref}
+
 %================= lhs2tex=====================================================%
 %% ODER: format ==         = "\mathrel{==}"
 %% ODER: format /=         = "\neq "
@@ -264,9 +266,8 @@
 \makeatother
 \EndFmtInput
 %
-% -- desactivados:
-%%format cond p f g = "\mcond{" p "}{" f "}{" g "}"
 \def\ana#1{\mathopen{[\!(}#1\mathclose{)\!]}}
+\newenvironment{lcbr}{\left\{\begin{array}{l}}{\end{array}\right.}
 %-------------- interface with pdbc.lhs ------------------------------------
 \def\monadification{4.10}
 %---------------------------------------------------------------------------
@@ -296,13 +297,13 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-\textbf{Grupo} nr. & 99 (preencher)
+\textbf{Grupo} nr. & 13
 \\\hline
-a11111 & Nome1 (preencher)	
+a77486 & Jose Pedro Resende
 \\
-a22222 & Nome2 (preencher)	
+a79007 & Patrícia Barreira	
 \\
-a33333 & Nome3 (preencher)	
+a78225 & Miguel Leite
 \end{tabular}
 \end{center}
 
@@ -399,7 +400,7 @@ fonte, se ter inserido o seguinte código \Haskell:
 \\
 \>[B]{}\mathbf{import}\;\Conid{St}{}\<[E]%
 \\
-\>[B]{}\mathbf{import}\;\Conid{Probability}\;\Varid{hiding}\;(\Varid{cond}){}\<[E]%
+\>[B]{}\mathbf{import}\;\Conid{Probability}\;\Varid{hiding}\;(\mcond{\cdot }{\cdot }{\cdot }){}\<[E]%
 \\
 \>[B]{}\mathbf{import}\;\Conid{\Conid{Data}.List}{}\<[E]%
 \\
@@ -411,6 +412,10 @@ fonte, se ter inserido o seguinte código \Haskell:
 \>[B]{}\mathbf{import}\;\Conid{\Conid{GHC}.\fun{IO}.Exception}{}\<[E]%
 \\
 \>[B]{}\mathbf{import}\;\Conid{\Conid{System}.\fun{IO}.Unsafe}{}\<[E]%
+\\
+\>[B]{}\mathbf{import}\;\Conid{\Conid{Data}.Maybe}{}\<[E]%
+\\
+\>[B]{}\mathbf{import}\;\Conid{\Conid{Data}.Either}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
@@ -1138,63 +1143,471 @@ outras funções auxiliares que sejam necessárias.
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{31}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{inv}\;\Varid{x}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{inv}\;\Varid{x}\mathrel{=}\p2\comp (\mathsf{for}\ \conj{((\mathrm{1}\mathbin{-}\Varid{x})\mathbin{*})\comp \p1}{\uncurry{(\mathbin{+})}\comp (((\mathrm{1}\mathbin{-}\Varid{x})\mathbin{*})\times\Varid{id})}\ (\mathrm{1},\mathrm{1})){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{prop\char95 inv}\;\Varid{x}\mathrel{=}(\Varid{x}\mathbin{>}\mathrm{1}\mathrel{\wedge}\Varid{x}\mathbin{<}\mathrm{2})\mathbin{==>}\Varid{abs}\;((\Varid{inv}\;(\Varid{inv}\;\Varid{x}\;\mathrm{5000})\;\mathrm{5000})\mathbin{-}\Varid{x})\mathbin{<}\Varid{diferenca}{}\<[E]%
+\\
+\>[B]{}\hsindent{31}{}\<[31]%
+\>[31]{}\mathbf{where}\;\Varid{diferenca}\mathrel{=}\mathrm{0.000000009}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+Inversa antes da conversao de uma catamorfismo de naturais para um for 
+\begin{Verbatim}
+
+inv x =   p2.cataNat (y)
+  where
+        y = split z p
+        p = either (const 1) ((uncurry(+)).(((1-x)*) ><  id))
+        z = either (const 1) (((1-x)*)).(id + p1)
+\end{Verbatim}
+
+Outra resolução da inversa atraves do seguinte raciocinio :
+
+\begin{Verbatim}
+inv x = for  ((1+) .((1-x)*)) 1
+\end{Verbatim}
+
+Prova:
+
+\begin{eqnarray*}
+%
+\start
+%
+  \ensuremath{\begin{lcbr}\Varid{inv}\;\Varid{x}\;\mathrm{0}\mathrel{=}\mathrm{1}\\\Varid{inv}\;\Varid{x}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}(\mathrm{1}\mathbin{-}\Varid{x})\mathbin{\uparrow}(\Varid{n}\mathbin{+}\mathrm{1})\end{lcbr}}
+
+%
+\just={lookaheap=look ; def sep c ; []=nil ; def cons ; lei-81}
+%
+    \ensuremath{\begin{lcbr}\Varid{look}\comp \Varid{nil}\mathrel{=}\Varid{true}\\\Varid{look}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{sep}\comp \p1\comp (\Varid{c},\Varid{look})\end{lcbr}}    
+%
+\just={lei-73}
+%
+    \ensuremath{\begin{lcbr}\Varid{look}\comp \Varid{nil}\mathrel{=}\Varid{true}\\\Varid{look}\comp \Varid{cons}\mathrel{=}\Varid{sep}\comp \p1\end{lcbr}}
+%
+\just={lei-17 ; in lista=\ensuremath{\alt{\Varid{nil}}{\Varid{cons}}} ; lei-76}
+%
+    \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}}{\Varid{sep}\comp \p1}}
+%
+\just={lei-1}
+%
+  \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}\comp \Varid{id}}{\Varid{sep}\comp \Varid{id}\comp \p1}}
+%
+\just={lei-13}
+%
+  \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}\comp \Varid{id}}{\Varid{sep}\comp \p1\comp (\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}})}}
+%
+\just={lei-22 (Resultado 1)}
+%
+  \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}}{\Varid{sep}\comp \p1}\comp (\Varid{id}\mathbin{+}(\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}}))}
+%
+\just={Por Fokking}
+%
+  \ensuremath{\Varid{wc\char95 c}\comp \mathbf{in}\mathrel{=}\alt{\Varid{f}}{\Varid{g}}\comp (\Varid{id}\mathbin{+}(\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}}))}
+%
+\just={Lei-22 ; lei-17}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\Varid{f}\\\Varid{wc\char95 c}\comp \Varid{cons}\mathrel{=}\Varid{g}\comp (\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}})\end{lcbr}}
+%
+\just={f=0 ; lei 73}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{g}\comp (\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}})\;(\Varid{c},\Varid{l})\end{lcbr}}
+%
+\just={lei-79}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{g}\comp (\Varid{id}\;\Varid{c}\times\conj{\Varid{look}}{\Varid{wc}}\;\Varid{l})\end{lcbr}}
+%
+\just={lei-78 ; lei 75}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{g}\comp (\Varid{c}\times(\Varid{look}\;\Varid{l},\Varid{wc}\;\Varid{l}))\end{lcbr}}
+%
+\just={Atendendo ao código Pointwise}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}(\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)})\comp (\Varid{c}\times(\Varid{look}\;\Varid{l},\Varid{wc}\;\Varid{l}))\end{lcbr}}
+%
+\just={Lei 17}
+%
+  \ensuremath{\Varid{wc\char95 c}\comp \alt{\Varid{nil}}{\Varid{cons}\;(\Varid{c},\Varid{l})}\mathrel{=}\alt{\underline{\mathrm{0}}}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}\comp (\Varid{c}\times(\Varid{look}\;\Varid{l},\Varid{wc}\;\Varid{l}))}
+%
+\just={encontrado o \ensuremath{\alt{\Varid{f}}{\Varid{g}}}; (resultado 2)}
+%
+  \ensuremath{\Varid{wc\char95 c}\comp \mathbf{in}\mathrel{=}\alt{\underline{\mathrm{0}}}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}\comp (\Varid{id}\mathbin{+}(\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}}))}
+%
+\just={Aplicando Fokking ao resultado  1 e 2}
+%
+  \ensuremath{\conj{\Varid{wc\char95 c}}{\Varid{l}}\mathrel{=}\cata{\conj{\alt{\underline{\Varid{true}}}{\Varid{sep}\comp \p1}}{\alt{\underline{\mathrm{0}}}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+\just={lei 7 ; lei-28}
+%
+  \ensuremath{\Varid{wc\char95 c}\mathrel{=}\p2\comp \cata{\alt{\conj{\underline{\Varid{true}}}{\underline{\mathrm{0}}}}{\conj{\Varid{sep}\comp \p1}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+\just={uncurry ; lei 78}
+%
+  \ensuremath{\Varid{wc\char95 c}\mathrel{=}\p2\comp \cata{\alt{\conj{\underline{\Varid{true}}}{\underline{\mathrm{0}}}}{\conj{\Varid{sep}\comp \p1}{\mcond{(\uncurry{(\mathrel{\wedge})}\comp \conj{\neg \comp \Varid{sep}\comp \p1}{\p1\comp \p2})}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+\just={lei-8 ; lei-78}
+%
+  \ensuremath{\Varid{wc\char95 c}\mathrel{=}\p2\comp \cata{\alt{\conj{\underline{\Varid{true}}}{\underline{\mathrm{0}}}}{\conj{\Varid{sep}\comp \p1}{\mcond{(\uncurry{(\mathrel{\wedge})}\comp (\neg \comp \Varid{sep}\times\p1))}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+
+ \end{eqnarray*}
+
+
+
+
+
 
 \subsection*{Problema 2}
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{14}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{29}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{111}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{wc\char95 w\char95 final}\mathbin{::}[\mskip1.5mu \Conid{Char}\mskip1.5mu]\to \Conid{Int}{}\<[E]%
 \\
 \>[B]{}\Varid{wc\char95 w\char95 final}\mathrel{=}\Varid{wrapper}\comp \Varid{worker}{}\<[E]%
 \\
-\>[B]{}\Varid{wrapper}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{wrapper}\mathrel{=}\p2{}\<[E]%
 \\
-\>[B]{}\Varid{worker}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{worker}\mathrel{=}\Varid{cataList}\;\alt{\conj{\Varid{true}}{\underline{\mathrm{0}}}}{\conj{\Varid{sep}\comp \p1}{\mcond{(\uncurry{(\mathrel{\wedge})}\comp ((\neg \comp \Varid{sep})\times(\p1)))}{{}\<[111]%
+\>[111]{}(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mathbf{where}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{sep}\;\Varid{c}\mathrel{=}{}\<[14]%
+\>[14]{}\Varid{c}\equiv \text{\tt '~'}\mathrel{\vee}\Varid{c}{}\<[29]%
+\>[29]{}\equiv \text{\tt '\char92 n'}\mathrel{\vee}\Varid{c}\equiv \text{\tt '\char92 t'}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
-\subsection*{Problema 3}
+A resolução deste exercicio consistiu em duas partes: Encontrar o worker e wraper utilizando a lei da recursividade múltipla e cálculo de programas.
 
+\begin{eqnarray*}
+%
+\start
+%
+  \ensuremath{\begin{lcbr}\Varid{lookahead}\;[\mskip1.5mu \mskip1.5mu]\mathrel{=}\Varid{true}\\\Varid{lookahead}\;(\Varid{c}\mathbin{:}\Varid{l})\mathrel{=}(\Varid{c}\equiv \text{\tt '~'}\mid \Varid{c}\equiv \text{\tt '\char92 n'}\mid \Varid{c}\equiv \text{\tt '\char92 t'})\end{lcbr}}
+
+  \end{cases}
+%
+\just={lookaheap=look ; def sep c ; []=nil ; def cons ; lei-81}
+%
+    \ensuremath{\begin{lcbr}\Varid{look}\comp \Varid{nil}\mathrel{=}\Varid{true}\\\Varid{look}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{sep}\comp \p1\comp (\Varid{c},\Varid{look})\end{lcbr}}    
+%
+\just={lei-73}
+%
+    \ensuremath{\begin{lcbr}\Varid{look}\comp \Varid{nil}\mathrel{=}\Varid{true}\\\Varid{look}\comp \Varid{cons}\mathrel{=}\Varid{sep}\comp \p1\end{lcbr}}
+%
+\just={lei-17 ; in lista=\ensuremath{\alt{\Varid{nil}}{\Varid{cons}}} ; lei-76}
+%
+    \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}}{\Varid{sep}\comp \p1}}
+%
+\just={lei-1}
+%
+  \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}\comp \Varid{id}}{\Varid{sep}\comp \Varid{id}\comp \p1}}
+%
+\just={lei-13}
+%
+  \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}\comp \Varid{id}}{\Varid{sep}\comp \p1\comp (\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}})}}
+%
+\just={lei-22 (Resultado 1)}
+%
+  \ensuremath{\Varid{look}\comp \mathbf{in}\mathrel{=}\alt{\underline{\Varid{true}}}{\Varid{sep}\comp \p1}\comp (\Varid{id}\mathbin{+}(\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}}))}
+%
+\just={Por Fokking}
+%
+  \ensuremath{\Varid{wc\char95 c}\comp \mathbf{in}\mathrel{=}\alt{\Varid{f}}{\Varid{g}}\comp (\Varid{id}\mathbin{+}(\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}}))}
+%
+\just={Lei-22 ; lei-17}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\Varid{f}\\\Varid{wc\char95 c}\comp \Varid{cons}\mathrel{=}\Varid{g}\comp (\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}})\end{lcbr}}
+%
+\just={f=0 ; lei 73}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{g}\comp (\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}})\;(\Varid{c},\Varid{l})\end{lcbr}}
+%
+\just={lei-79}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{g}\comp (\Varid{id}\;\Varid{c}\times\conj{\Varid{look}}{\Varid{wc}}\;\Varid{l})\end{lcbr}}
+%
+\just={lei-78 ; lei 75}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}\Varid{g}\comp (\Varid{c}\times(\Varid{look}\;\Varid{l},\Varid{wc}\;\Varid{l}))\end{lcbr}}
+%
+\just={Atendendo ao código Pointwise}
+%
+  \ensuremath{\begin{lcbr}\Varid{wc\char95 c}\comp \Varid{nil}\mathrel{=}\mathrm{0}\\\Varid{wc\char95 c}\comp \Varid{cons}\;(\Varid{c},\Varid{l})\mathrel{=}(\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)})\comp (\Varid{c}\times(\Varid{look}\;\Varid{l},\Varid{wc}\;\Varid{l}))\end{lcbr}}
+%
+\just={Lei 17}
+%
+  \ensuremath{\Varid{wc\char95 c}\comp \alt{\Varid{nil}}{\Varid{cons}\;(\Varid{c},\Varid{l})}\mathrel{=}\alt{\underline{\mathrm{0}}}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}\comp (\Varid{c}\times(\Varid{look}\;\Varid{l},\Varid{wc}\;\Varid{l}))}
+%
+\just={encontrado o \ensuremath{\alt{\Varid{f}}{\Varid{g}}}; (resultado 2)}
+%
+  \ensuremath{\Varid{wc\char95 c}\comp \mathbf{in}\mathrel{=}\alt{\underline{\mathrm{0}}}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}\comp (\Varid{id}\mathbin{+}(\Varid{id}\times\conj{\Varid{look}}{\Varid{wc}}))}
+%
+\just={Aplicando Fokking ao resultado  1 e 2}
+%
+  \ensuremath{\conj{\Varid{wc\char95 c}}{\Varid{l}}\mathrel{=}\cata{\conj{\alt{\underline{\Varid{true}}}{\Varid{sep}\comp \p1}}{\alt{\underline{\mathrm{0}}}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+\just={lei 7 ; lei-28}
+%
+  \ensuremath{\Varid{wc\char95 c}\mathrel{=}\p2\comp \cata{\alt{\conj{\underline{\Varid{true}}}{\underline{\mathrm{0}}}}{\conj{\Varid{sep}\comp \p1}{\mcond{(\neg \comp \Varid{sep}\comp \p1\mathrel{\wedge}\p1\comp \p2)}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+\just={uncurry ; lei 78}
+%
+  \ensuremath{\Varid{wc\char95 c}\mathrel{=}\p2\comp \cata{\alt{\conj{\underline{\Varid{true}}}{\underline{\mathrm{0}}}}{\conj{\Varid{sep}\comp \p1}{\mcond{(\uncurry{(\mathrel{\wedge})}\comp \conj{\neg \comp \Varid{sep}\comp \p1}{\p1\comp \p2})}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+\just={lei-8 ; lei-78}
+%
+  \ensuremath{\Varid{wc\char95 c}\mathrel{=}\p2\comp \cata{\alt{\conj{\underline{\Varid{true}}}{\underline{\mathrm{0}}}}{\conj{\Varid{sep}\comp \p1}{\mcond{(\uncurry{(\mathrel{\wedge})}\comp (\neg \comp \Varid{sep}\times\p1))}{(\succ \comp \p2\comp \p2)}{(\p2\comp \p2)}}}}}
+%
+
+ \end{eqnarray*}
+
+ QuickCheck:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{genSafeChar}\mathbin{::}\Conid{Gen}\;\Conid{Char}{}\<[E]%
+\\
+\>[B]{}\Varid{genSafeChar}\mathrel{=}\Varid{elements}\;([\mskip1.5mu \text{\tt 'a'}\mathinner{\ldotp\ldotp}\text{\tt 'z'}\mskip1.5mu]\plus \text{\tt \char34 ~\char92 n\char92 t\char34}){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{genSafeString}\mathbin{::}\Conid{Gen}\;\Conid{String}{}\<[E]%
+\\
+\>[B]{}\Varid{genSafeString}\mathrel{=}\Varid{listOf}\;\Varid{genSafeChar}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\mathbf{newtype}\;\Conid{SafeString}\mathrel{=}\Conid{SafeString}\;\{\mskip1.5mu \Varid{unwrapSafeString}\mathbin{::}\Conid{String}\mskip1.5mu\}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mathbf{deriving}\;\Conid{Show}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{prop\char95 wc\char95 w\char95 final}\mathrel{=}\Varid{forAll}\;\Varid{genSafeString}\mathbin{\$}\lambda \Varid{str}\to (\Varid{wc\char95 w\char95 final}\;\Varid{str})\equiv (\length \mathbin{\$}\Varid{words}\;\Varid{str}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+Consulta de:
+
+\url{https://stackoverflow.com/questions/20934506/haskell-quickcheck-how-to-generate-only-printable-strings}
+
+
+
+
+
+
+
+
+
+{ in=(either (const 0) succ); f=inv; g=macL; F(split f g)=F(split inv macL)=( id + (split inv macL)) }
+
+\subsection*{Problema 3}
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{10}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{15}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{inB\char95 tree}\mathrel{=}\bot {}\<[E]%
-\\
-\>[B]{}\Varid{outB\char95 tree}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\mbox{\onelinecomment (1)------------------------------------------------------------}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{recB\char95 tree}\;\Varid{f}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{outB\char95 tree}\mathbin{::}\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\to ()+(\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a},[\mskip1.5mu (\Varid{a},\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a})\mskip1.5mu]){}\<[E]%
 \\
-\>[B]{}\Varid{baseB\char95 tree}\;\Varid{g}\;\Varid{f}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{outB\char95 tree}\;\Conid{Nil}\mathrel{=}i_1\;(){}\<[E]%
 \\
-\>[B]{}\Varid{cataB\char95 tree}\;\Varid{g}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{outB\char95 tree}\;(\Conid{Block}\;\Varid{t}\;\Varid{l})\mathrel{=}i_2\;(\Varid{t},\Varid{l}){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{inB\char95 tree}{}\<[11]%
+\>[11]{}\mathbin{::}()+(\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a},[\mskip1.5mu (\Varid{a},\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a})\mskip1.5mu])\to \mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}{}\<[E]%
 \\
-\>[B]{}\Varid{anaB\char95 tree}\;\Varid{g}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{inB\char95 tree}\mathrel{=}\alt{\underline{\Conid{Nil}}}{\uncurry{\Conid{Block}}}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{baseB\char95 tree}\mathbin{::}(\Varid{a}\to \Varid{b})\to (\Varid{c}\to \Varid{d})\to ()+(\Varid{c},[\mskip1.5mu (\Varid{a},\Varid{c})\mskip1.5mu])\to ()+(\Varid{d},[\mskip1.5mu (\Varid{b},\Varid{d})\mskip1.5mu]){}\<[E]%
 \\
-\>[B]{}\Varid{hyloB\char95 tree}\;\Varid{f}\;\Varid{g}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{baseB\char95 tree}\;\Varid{f}\;\Varid{g}\mathrel{=}\Varid{id}+(\Varid{g}\times(\map \;(\Varid{f}\times\Varid{g}))){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{recB\char95 tree}\mathbin{::}{}\<[15]%
+\>[15]{}(\Varid{a}\to \Varid{b})\to ()+(\Varid{a},[\mskip1.5mu (\Varid{d},\Varid{a})\mskip1.5mu])\to ()+(\Varid{b},[\mskip1.5mu (\Varid{d},\Varid{b})\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{recB\char95 tree}\;\Varid{g}\mathrel{=}\Varid{baseB\char95 tree}\;\Varid{id}\;\Varid{g}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{cataB\char95 tree}\mathbin{::}((()+(\Varid{b},[\mskip1.5mu (\Varid{a},\Varid{b})\mskip1.5mu]))\to \Varid{b})\to \mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\to \Varid{b}{}\<[E]%
+\\
+\>[B]{}\Varid{cataB\char95 tree}\;\Varid{g}\mathrel{=}\Varid{g}\comp (\Varid{recB\char95 tree}\;(\Varid{cataB\char95 tree}\;\Varid{g}))\comp \Varid{outB\char95 tree}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{anaB\char95 tree}\mathbin{::}(\Varid{a}\to ()+(\Varid{a},[\mskip1.5mu (\Varid{b},\Varid{a})\mskip1.5mu]))\to \Varid{a}\to \mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{b}{}\<[E]%
+\\
+\>[B]{}\Varid{anaB\char95 tree}\;\Varid{g}\mathrel{=}\Varid{inB\char95 tree}\comp (\Varid{recB\char95 tree}\;(\Varid{anaB\char95 tree}\;\Varid{g}))\comp \Varid{g}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{hyloB\char95 tree}\mathbin{::}((()+(\Varid{c},[\mskip1.5mu (\Varid{b},\Varid{c})\mskip1.5mu]))\to \Varid{c})\to (\Varid{a}\to ()+(\Varid{a},[\mskip1.5mu (\Varid{b},\Varid{a})\mskip1.5mu]))\to \Varid{a}\to \Varid{c}{}\<[E]%
+\\
+\>[B]{}\Varid{hyloB\char95 tree}\;\Varid{h}\;\Varid{g}\mathrel{=}\Varid{cataB\char95 tree}\;\Varid{h}\comp \Varid{anaB\char95 tree}\;\Varid{g}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\mathbf{instance}\;\Conid{Functor}\;\mathsf{B}\mbox{-}\mathsf{tree} {}\<[E]%
 \\
 \>[B]{}\hsindent{10}{}\<[10]%
-\>[10]{}\mathbf{where}\;\mathsf{fmap}\;\Varid{f}\mathrel{=}\bot {}\<[E]%
+\>[10]{}\mathbf{where}\;\mathsf{fmap}\;\Varid{f}\mathrel{=}\Varid{cataB\char95 tree}\;(\Varid{inB\char95 tree}\comp \Varid{baseB\char95 tree}\;\Varid{f}\;\Varid{id}){}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{inordB\char95 tree}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\mbox{\onelinecomment (2)------------------------------------------------------------}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+\hfill \break
+Diagrama da função \emph{inordB\_tree}:
+\hfill \break
+
+\xymatrix@C=3cm{
+\hfill \break
+    \ensuremath{\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}}
+           \ar[d]_-{\ensuremath{\Varid{outB\char95 tree}}}
+           \ar[r]_-{\ensuremath{\cata{\Varid{g}}\mathrel{=}\Varid{inordB\char95 tree}}}
+&
+    \ensuremath{\Conid{L}}
+\\
+    \ensuremath{\mathrm{1}\mathbin{+}\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\times(\Varid{a}\times\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a})\;\textsuperscript{*}}
+           \ar[r]^-{\ensuremath{\Varid{id}\mathbin{+}\cata{\Varid{g}}\times\map \;(\Varid{id}\times\cata{\Varid{g}})}}
+&
+    \ensuremath{\mathrm{1}\mathbin{+}\Conid{L}\times(\Varid{a}\times\Conid{L})\;\textsuperscript{*}}
+           \ar[u]^-{\ensuremath{\Varid{g}}}
+}
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{inordB\char95 tree}\mathbin{::}\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{t}\to [\mskip1.5mu \Varid{t}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{inordB\char95 tree}\mathrel{=}\Varid{cataB\char95 tree}\;\Varid{inordB\char95 tree\char95 gene}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{largestBlock}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{inordB\char95 tree\char95 gene}\mathbin{::}()+([\mskip1.5mu \Varid{a}\mskip1.5mu],[\mskip1.5mu (\Varid{a},[\mskip1.5mu \Varid{a}\mskip1.5mu])\mskip1.5mu])\to [\mskip1.5mu \Varid{a}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{inordB\char95 tree\char95 gene}\mathrel{=}\alt{\Varid{nil}}{\mathsf{conc}\comp (\Varid{id}\times(\Varid{concat}\comp (\map \;\Varid{cons})))}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{mirrorB\char95 tree}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\mbox{\onelinecomment (3)------------------------------------------------------------}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\hfill \break
+Diagrama da função \emph{largestBlock}:
+\hfill \break
+
+\xymatrix@C=3cm{
+\hfill \break
+    \ensuremath{\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}}
+           \ar[d]_-{\ensuremath{\Varid{outB\char95 tree}}}
+           \ar[r]_-{\ensuremath{\cata{\Varid{g}}\mathrel{=}\Varid{largestBlock}}}
+&
+    \ensuremath{\mathbb{N}_0}
+\\
+    \ensuremath{\mathrm{1}\mathbin{+}\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\times(\Varid{a}\times\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a})\;\textsuperscript{*}}
+           \ar[r]^-{\ensuremath{\Varid{id}\mathbin{+}\cata{\Varid{g}}\times\map \;(\Varid{id}\times\cata{\Varid{g}})}}
+&
+    \ensuremath{\mathrm{1}\mathbin{+}\mathbb{N}_0\times(\Varid{a}\times\mathbb{N}_0)\;\textsuperscript{*}}
+           \ar[u]^-{\ensuremath{\Varid{g}}}
+}
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{largestBlock}\mathbin{::}\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\to \Conid{Int}{}\<[E]%
+\\
+\>[B]{}\Varid{largestBlock}\mathrel{=}\Varid{cataB\char95 tree}\;\alt{\underline{\mathrm{0}}}{\uncurry{\Varid{max}}\comp (\Varid{id}\times(\uncurry{\Varid{max}}\comp \conj{\length }{\Varid{maximum}\comp (\map \;\p2)}))}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{lsplitB\char95 tree}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\mbox{\onelinecomment (4)------------------------------------------------------------}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{mirrorB\char95 tree}\mathbin{::}\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\to \mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}{}\<[E]%
+\\
+\>[B]{}\Varid{mirrorB\char95 tree}\mathrel{=}\Varid{anaB\char95 tree}\;\Varid{g}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mathbf{where}\;{}\<[13]%
+\>[13]{}\Varid{g}\mathrel{=}(\Varid{id}+(\Varid{toTuple}\comp \Varid{reverse}\comp \Varid{toEither}))\comp \Varid{outB\char95 tree}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{qSortB\char95 tree}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{toTuple}\mathbin{::}[\mskip1.5mu \Varid{a}+\Varid{b}\mskip1.5mu]\to (\Varid{b},[\mskip1.5mu (\Varid{a},\Varid{b})\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{toTuple}\mathrel{=}\conj{\Varid{head}\comp \p2}{\uncurry{\Varid{zip}}\comp (\Varid{id}\times\Varid{tail})}\comp \Varid{partitionEithers}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{dotB\char95 tree}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{toEither}\mathbin{::}(\Varid{b},[\mskip1.5mu (\Varid{a},\Varid{b})\mskip1.5mu])\to [\mskip1.5mu \Varid{a}+\Varid{b}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{toEither}\mathrel{=}\Varid{cons}\comp (i_2\times(\Varid{concat}\comp \map \;\Varid{listTuple})){}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{cB\char95 tree2Exp}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{listTuple}\mathbin{::}(\Varid{a},\Varid{b})\to [\mskip1.5mu \Varid{a}+\Varid{b}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{listTuple}\mathrel{=}\Varid{cons}\comp (i_1\times(\Varid{cons}\comp \conj{i_2}{\underline{[\mskip1.5mu \mskip1.5mu]}})){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\mbox{\onelinecomment (5)------------------------------------------------------------}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{qSortB\char95 tree}\mathbin{::}\Conid{Ord}\;\Varid{a}\Rightarrow [\mskip1.5mu \Varid{a}\mskip1.5mu]\to [\mskip1.5mu \Varid{a}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{qSortB\char95 tree}\mathrel{=}\Varid{hyloB\char95 tree}\;\Varid{inordB\char95 tree\char95 gene}\;\Varid{lsplitB\char95 tree}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{lsplitB\char95 tree}\mathbin{::}\Conid{Ord}\;\Varid{a}\Rightarrow [\mskip1.5mu \Varid{a}\mskip1.5mu]\to ()+([\mskip1.5mu \Varid{a}\mskip1.5mu],[\mskip1.5mu (\Varid{a},[\mskip1.5mu \Varid{a}\mskip1.5mu])\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{lsplitB\char95 tree}\;[\mskip1.5mu \mskip1.5mu]\mathrel{=}i_1\;(){}\<[E]%
+\\
+\>[B]{}\Varid{lsplitB\char95 tree}\;(\Varid{h}\mathbin{:}\Varid{t})\mathrel{=}i_2\;(\Varid{l},[\mskip1.5mu (\Varid{h},\Varid{r})\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\hsindent{9}{}\<[9]%
+\>[9]{}\mathbf{where}\;(\Varid{l},\Varid{r})\mathrel{=}\Varid{mypart}\;(\mathbin{<}\Varid{h})\;\Varid{t}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\hfill \break
+Diagrama da função \emph{mypart}:
+\hfill \break
+
+\xymatrix@C=3cm{
+\hfill \break
+    \ensuremath{\Conid{L}}
+           \ar[d]_-{\ensuremath{\Varid{outList}}}
+           \ar[r]_-{\ensuremath{\cata{\Varid{g}}\mathrel{=}\Varid{mypart}\;\Varid{p}}}
+&
+    \ensuremath{(\Conid{L1})\;\textsuperscript{*}\times(\Conid{L2})\;\textsuperscript{*}}
+\\
+    \ensuremath{\mathrm{1}\mathbin{+}\Varid{a}\times\Conid{L}}
+           \ar[r]^-{\ensuremath{\Varid{id}\mathbin{+}\Varid{id}\times\cata{\Varid{g}})}}
+&
+    \ensuremath{\mathrm{1}\mathbin{+}\Varid{a}\times((\Conid{L1})\;\textsuperscript{*}\times(\Conid{L2})\;\textsuperscript{*})}
+           \ar[u]^-{\ensuremath{\Varid{g}}}
+}
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{mypart}\mathbin{::}(\Varid{a}\to \Conid{Bool})\to [\mskip1.5mu \Varid{a}\mskip1.5mu]\to ([\mskip1.5mu \Varid{a}\mskip1.5mu],[\mskip1.5mu \Varid{a}\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{mypart}\;\Varid{p}\mathrel{=}\Varid{cataList}\;\alt{\conj{\Varid{nil}}{\Varid{nil}}}{\mcond{(\Varid{p}\comp \p1)}{\Varid{toFST}}{\Varid{toSND}}}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{toFST}\mathbin{::}(\Varid{a},([\mskip1.5mu \Varid{a}\mskip1.5mu],[\mskip1.5mu \Varid{a}\mskip1.5mu]))\to ([\mskip1.5mu \Varid{a}\mskip1.5mu],[\mskip1.5mu \Varid{a}\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{toFST}\mathrel{=}\conj{\Varid{cons}\comp (\Varid{id}\times\p1)}{\p2\comp \p2}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{toSND}\mathbin{::}(\Varid{a},([\mskip1.5mu \Varid{a}\mskip1.5mu],[\mskip1.5mu \Varid{a}\mskip1.5mu]))\to ([\mskip1.5mu \Varid{a}\mskip1.5mu],[\mskip1.5mu \Varid{a}\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{toSND}\mathrel{=}\conj{\p1\comp \p2}{\Varid{cons}\comp (\Varid{id}\times\p2)}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\mbox{\onelinecomment (6)------------------------------------------------------------}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{dotB\char95 tree}\mathbin{::}\Conid{Show}\;\Varid{a}\Rightarrow \mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\to \fun{IO}\;\Conid{ExitCode}{}\<[E]%
+\\
+\>[B]{}\Varid{dotB\char95 tree}\mathrel{=}\Varid{dotpict}\comp \Varid{bmap}\;\Varid{nothing}\;(\Conid{Just}\comp \Varid{show})\comp \Varid{cB\char95 tree2Exp}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{cB\char95 tree2Exp}\mathbin{::}\mathsf{B}\mbox{-}\mathsf{tree} \;\Varid{a}\to \Conid{Exp}\;[\mskip1.5mu \Conid{Char}\mskip1.5mu]\;[\mskip1.5mu \Varid{a}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{cB\char95 tree2Exp}\mathrel{=}\Varid{cataB\char95 tree}\;\alt{\underline{\cdot }\mathbin{\$}\Conid{Var}\;\text{\tt \char34 nil\char34}}{\Varid{aux}}{}\<[E]%
+\\
+\>[B]{}\hsindent{9}{}\<[9]%
+\>[9]{}\mathbf{where}\;\Varid{aux}\mathrel{=}\uncurry{\Conid{Term}}\comp \conj{(\map \;\p1)\comp \p2}{\Varid{cons}\comp (\Varid{id}\times((\map \;\p2)))}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
@@ -1203,18 +1616,39 @@ outras funções auxiliares que sejam necessárias.
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\ana{\cdot ~\cdot }_A\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\ana{\cdot ~\cdot }_B\mathrel{=}\bot {}\<[E]%
+\>[B]{}\ana{\Varid{ga}~\Varid{gb}}_A\mathrel{=}\Varid{inA}\comp ((\Varid{id})+(\ana{\Varid{ga}~\Varid{gb}}_A\times\ana{\Varid{ga}~\Varid{gb}}_B))\comp \Varid{ga}{}\<[E]%
+\\
+\>[B]{}\ana{\Varid{ga}~\Varid{gb}}_B\mathrel{=}\Varid{inB}\comp ((\Varid{id})+\ana{\Varid{ga}~\Varid{gb}}_A)\comp \Varid{gb}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{14}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{15}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{38}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{generateAlgae}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{generateAlgae}\mathrel{=}\ana{(\Varid{id}+\conj{\Varid{id}}{\Varid{id}})\comp \Varid{outNat}~\Varid{outNat}}_A{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{showAlgae}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{showAlgae}\mathrel{=}\cata{\alt{\underline{\text{\tt \char34 A\char34}}}{\mathsf{conc}\comp \Varid{id}}~\alt{\underline{\text{\tt \char34 B\char34}}}{\Varid{id}}}_A{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{prop\char95 Algae}\mathbin{::}\Conid{Int}\to \Conid{Property}{}\<[E]%
+\\
+\>[B]{}\Varid{prop\char95 Algae}\;\Varid{x}\mathrel{=}(\Varid{x}\geq \mathrm{0}\mathrel{\wedge}\Varid{x}\mathbin{<}\mathrm{20})\mathbin{==>}(\Varid{a}\;\Varid{x})\equiv (\Varid{b}\;\Varid{x}){}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mathbf{where}{}\<[E]%
+\\
+\>[5]{}\hsindent{4}{}\<[9]%
+\>[9]{}\Varid{a}\mathrel{=}{}\<[15]%
+\>[15]{}\length \comp \Varid{showAlgae}\comp \Varid{generateAlgae}{}\<[E]%
+\\
+\>[5]{}\hsindent{4}{}\<[9]%
+\>[9]{}\Varid{b}\mathrel{=}{}\<[14]%
+\>[14]{}\Varid{fromInteger}\comp \Varid{fib}\comp \succ {}\<[38]%
+\>[38]{}\comp \Varid{toInteger}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 

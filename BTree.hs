@@ -77,7 +77,7 @@ qSort = hyloBTree inord qsep -- the same as (cataBTree inord) . (anaBTree qsep)
 qsep []    = Left ()
 qsep (h:t) = Right (h,(s,l)) where (s,l) = part (<h) t
 
-part:: (a -> Bool) -> [a] -> ([a], [a])
+part :: (a -> Bool) -> [a] -> ([a], [a])
 part p []                = ([],[])
 part p (h:t) | p h       = let (s,l) = part p t in (h:s,l)
              | otherwise = let (s,l) = part p t in (s,h:l)
