@@ -4,6 +4,8 @@
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
 \usepackage{graphicx}
 \usepackage{cp1617t}
+\usepackage{hyperref}
+
 %================= lhs2tex=====================================================%
 %include polycode.fmt 
 %format (div (x)(y)) = x "\div " y
@@ -31,12 +33,12 @@
 %format (uncurry f) = "\uncurry{" f "}"
 %format (const f) = "\underline{" f "}"
 %format TLTree = "\mathsf{TLTree}"
-% -- desactivados:
-%%format cond p f g = "\mcond{" p "}{" f "}{" g "}"
+%format cond p f g = "\mcond{" p "}{" f "}{" g "}"
 %format (split (x) (y)) = "\conj{" x "}{" y "}"
 %format for f i = "\mathsf{for}\ " f "\ " i
 %format B_tree = "\mathsf{B}\mbox{-}\mathsf{tree} "
 \def\ana#1{\mathopen{[\!(}#1\mathclose{)\!]}}
+%format (cata (f)) = "\cata{" f "}"
 %format (cataA (f) (g)) = "\cata{" f "~" g "}_A"
 %format (anaA (f) (g)) = "\ana{" f "~" g "}_A"
 %format (cataB (f) (g)) = "\cata{" f "~" g "}_B"
@@ -737,6 +739,95 @@ Outra resolução da inversa atraves do seguinte raciocinio :
 inv x = for  ((1+) .((1-x)*)) 1
 \end{Verbatim}
 
+Prova:
+
+\begin{eqnarray*}
+%
+\start
+%
+  |lcbr (inv x 0 =1) (inv x (n+1)=(1-x)^(n+1))|
+
+%
+\just={lookaheap=look ; def sep c ; []=nil ; def cons ; lei-81}
+%
+    |lcbr (look.nil= true) (look.cons(c,l)=sep.p1.(c,look))|    
+%
+\just={lei-73}
+%
+    |lcbr (look.nil =true) (look.cons = sep.p1)|
+%
+\just={lei-17 ; in lista=|(either (nil) (cons))| ; lei-76}
+%
+    |look.in=(either (const true) (sep.p1) )|
+%
+\just={lei-1}
+%
+  |look.in=(either ((const true).id) (sep.id.p1) )|
+%
+\just={lei-13}
+%
+  |look.in= (either ((const true).id) (sep.p1.(id >< split (look) (wc))))|
+%
+\just={lei-22 (Resultado 1)}
+%
+  |look.in=(either (const true) (sep.p1)).(id + (id >< split (look) (wc)))|
+%
+\just={Por Fokking}
+%
+  |wc_c.in=(either (f) (g)).(id + (id >< split (look) (wc)))|
+%
+\just={Lei-22 ; lei-17}
+%
+  |lcbr (wc_c.nil=f) (wc_c.cons=g.(id >< split (look) (wc))|
+%
+\just={f=0 ; lei 73}
+%
+  |lcbr (wc_c.nil=0) (wc_c.cons(c,l)=g.(id >< split (look) (wc))(c,l)|
+%
+\just={lei-79}
+%
+  |lcbr  (wc_c.nil=0) (wc_c.cons(c,l)=g.(id c >< (split (look) (wc)) l)|
+%
+\just={lei-78 ; lei 75}
+%
+  |lcbr  (wc_c.nil=0) (wc_c.cons(c,l)=g.(c >< (look l , wc l))|
+%
+\just={Atendendo ao código Pointwise}
+%
+  |lcbr (wc_c.nil=0) (wc_c.cons(c,l)=(cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2)).(c >< (look l , wc l))|
+%
+\just={Lei 17}
+%
+  |wc_c.(either (nil) (cons(c,l)))=(either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))).(c >< (look l , wc l))|
+%
+\just={encontrado o |either (f) (g)|; (resultado 2)}
+%
+  |wc_c.in=(either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))).(id + (id >< split (look) (wc)))|
+%
+\just={Aplicando Fokking ao resultado  1 e 2}
+%
+  |split (wc_c) (l) = (cata (split (either (const true) (sep.p1)) (either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2)))))|
+%
+\just={lei 7 ; lei-28}
+%
+  |wc_c= p2. (cata (either (split (const true) (const 0))  (split (sep.p1)  (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))) ))|
+%
+\just={uncurry ; lei 78}
+%
+  |wc_c= p2. (cata (either (split (const true) (const 0))  (split (sep.p1)  (cond ((uncurry(&&)).split (not.sep.p1) (p1.p2)) (succ.p2.p2) (p2.p2))) ))|
+%
+\just={lei-8 ; lei-78}
+%
+  |wc_c=p2. (cata( either (split (const true) (const 0))  (split (sep.p1)  (cond ((uncurry(&&)).(not.sep  >< p1)) (succ.p2.p2) (p2.p2))) ))|
+%
+
+ \end{eqnarray*}
+
+
+
+
+
+
 \subsection*{Problema 2}
 
 \begin{code}
@@ -746,8 +837,95 @@ wrapper = p2
 worker = cataList( either (split (true) (const 0)) (split (sep.p1) (cond ((uncurry(&&)).((not.sep) >< (p1)))  (succ.p2.p2) (p2.p2) ) ))
   where
     sep c =  c == ' ' || c  == '\n' || c == '\t'
+\end{code}
 
+A resolução deste exercicio consistiu em duas partes: Encontrar o worker e wraper utilizando a lei da recursividade múltipla e cálculo de programas.
 
+\begin{eqnarray*}
+%
+\start
+%
+  |lcbr (lookahead []= true)(lookahead (c:l)= (c == ' ' || c == '\n' || c == '\t'))|
+
+  \end{cases}
+%
+\just={lookaheap=look ; def sep c ; []=nil ; def cons ; lei-81}
+%
+    |lcbr (look.nil= true) (look.cons(c,l)=sep.p1.(c,look))|    
+%
+\just={lei-73}
+%
+    |lcbr (look.nil =true) (look.cons = sep.p1)|
+%
+\just={lei-17 ; in lista=|(either (nil) (cons))| ; lei-76}
+%
+    |look.in=(either (const true) (sep.p1) )|
+%
+\just={lei-1}
+%
+  |look.in=(either ((const true).id) (sep.id.p1) )|
+%
+\just={lei-13}
+%
+  |look.in= (either ((const true).id) (sep.p1.(id >< split (look) (wc))))|
+%
+\just={lei-22 (Resultado 1)}
+%
+  |look.in=(either (const true) (sep.p1)).(id + (id >< split (look) (wc)))|
+%
+\just={Por Fokking}
+%
+  |wc_c.in=(either (f) (g)).(id + (id >< split (look) (wc)))|
+%
+\just={Lei-22 ; lei-17}
+%
+  |lcbr (wc_c.nil=f) (wc_c.cons=g.(id >< split (look) (wc))|
+%
+\just={f=0 ; lei 73}
+%
+  |lcbr (wc_c.nil=0) (wc_c.cons(c,l)=g.(id >< split (look) (wc))(c,l)|
+%
+\just={lei-79}
+%
+  |lcbr  (wc_c.nil=0) (wc_c.cons(c,l)=g.(id c >< (split (look) (wc)) l)|
+%
+\just={lei-78 ; lei 75}
+%
+  |lcbr  (wc_c.nil=0) (wc_c.cons(c,l)=g.(c >< (look l , wc l))|
+%
+\just={Atendendo ao código Pointwise}
+%
+  |lcbr (wc_c.nil=0) (wc_c.cons(c,l)=(cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2)).(c >< (look l , wc l))|
+%
+\just={Lei 17}
+%
+  |wc_c.(either (nil) (cons(c,l)))=(either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))).(c >< (look l , wc l))|
+%
+\just={encontrado o |either (f) (g)|; (resultado 2)}
+%
+  |wc_c.in=(either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))).(id + (id >< split (look) (wc)))|
+%
+\just={Aplicando Fokking ao resultado  1 e 2}
+%
+  |split (wc_c) (l) = (cata (split (either (const true) (sep.p1)) (either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2)))))|
+%
+\just={lei 7 ; lei-28}
+%
+  |wc_c= p2. (cata (either (split (const true) (const 0))  (split (sep.p1)  (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))) ))|
+%
+\just={uncurry ; lei 78}
+%
+  |wc_c= p2. (cata (either (split (const true) (const 0))  (split (sep.p1)  (cond ((uncurry(&&)).split (not.sep.p1) (p1.p2)) (succ.p2.p2) (p2.p2))) ))|
+%
+\just={lei-8 ; lei-78}
+%
+  |wc_c=p2. (cata( either (split (const true) (const 0))  (split (sep.p1)  (cond ((uncurry(&&)).(not.sep  >< p1)) (succ.p2.p2) (p2.p2))) ))|
+%
+
+ \end{eqnarray*}
+
+ QuickCheck:
+\begin{code}
 genSafeChar :: Gen Char
 genSafeChar = elements (['a'..'z'] ++ " \n\t")
 
@@ -761,35 +939,12 @@ newtype SafeString = SafeString { unwrapSafeString :: String }
 prop_wc_w_final= forAll genSafeString $ \str -> (wc_w_final str) == (length $ words str)
 
 \end{code}
+Consulta de:
+
+\url{https://stackoverflow.com/questions/20934506/haskell-quickcheck-how-to-generate-only-printable-strings}
 
 
- A resolução deste exercicio consistiu em duas partes: Encontrar o Funtor do worker e
 
-\begin{eqnarray*}
-%
-\start
-%
-  |lcbr (lookahead []= true)(lookahead (c:l)= (c == ' ' || c == '\n' || c == '\t'))|
-
-  \end{cases}
-%
-\just={lookaheap=l ; def sep c ; []=nil ; def cons ; lei-81}
-%
-    |lcbr (l.nil= true) (l.cons(c,l)=sep.p1.(c,l))|    
-%
-\just={lei-73}
-%
-    |lcbr (l.nil =true) (l.cons = sep.p1)|
-%
-\just={lei-17 ; in lista=|(either (nil) (cons))| ; lei-76}
-%
-    |l.in=(either (const true) (sep.p1) )|
-%
-\just={lei-1}
-%
-  |l.in=(either ((const true).id) (sep.id.p1) )|
-%
- \end{eqnarray*}
 
 
 
@@ -798,7 +953,6 @@ prop_wc_w_final= forAll genSafeString $ \str -> (wc_w_final str) == (length $ wo
 
 { in=(either (const 0) succ); f=inv; g=macL; F(split f g)=F(split inv macL)=( id + (split inv macL)) }
 
-https://stackoverflow.com/questions/20934506/haskell-quickcheck-how-to-generate-only-printable-strings
 \subsection*{Problema 3}
 \begin{code}
 
