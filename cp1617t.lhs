@@ -722,26 +722,64 @@ outras funções auxiliares que sejam necessárias.
 
 \begin{code}
 inv x = p2. (for (split (((1-x)*).p1) ((uncurry(+)). (((1-x)*)>< id))) (1,1)) 
-
-prop_inv x = (x>1 && x<2) ==> abs((inv (inv x 5000) 5000) - x) < diferenca
-                              where diferenca = 0.000000009 
-
 \end{code}
-Inversa antes da conversao de uma catamorfismo de naturais para um for 
-\begin{Verbatim}
 
-inv x =   p2.cataNat (y)
-  where
-        y = split z p
-        p = either (const 1) ((uncurry(+)).(((1-x)*) ><  id))
-        z = either (const 1) (((1-x)*)).(id + p1)
-\end{Verbatim}
+Conseguimos tambem um segunda resolução do problema 1 que utiliza o seguinte raciocinio : 
+(1-x)^0 + (1-x)^1 + (1-x)^2 ..... 
 
-Outra resolução da inversa atraves do seguinte raciocinio :
+entao temos :
 
-\begin{Verbatim}
-inv x = for  ((1+) .((1-x)*)) 1
-\end{Verbatim}
+1 + (1-x)
+
+A = 1-x 
+
+A^0 + A^1 + A^2 +.....
+
+1   + A^(1+ A + A^2 ....)
+
+1 + A(1 + A (1 + A .....))
+
+Chegamos assim ao ciclo for 
+\begin{code}
+inv2 x = for  ((1+) .((1-x)*)) 1
+\end{code}
+
+
+Resolução da primeira versão:
+
+Função auxiliar para a resolução do problema:
+\begin{eqnarray*}
+%
+\start
+%
+ |lcbr (exp a 0 =1) (exp a (e+1)= a >< (exp a e))| 
+%
+\just={a=1-x}
+%
+    |lcbr (exp (1-x) 0 =1) (exp (1-x) (e+1)= (1-x) >< (exp (1-x) e))|    
+%
+\just={def succ ; lei-73}
+%
+    |lcbr (exp (1-x) 0 =1) (exp (1-x) succ= (1-x) >< (exp (1-x)))|
+%
+\just={lei-17}
+%
+    |exp (1-x).in=either (const 1) ((1-x) >< (exp (1-x))) |
+%
+\just={lei-22}
+%
+  |exp (1-x).in=(either (const 1) ((1-x)*)).(id + (exp(1-x)))|
+%
+\just={lei 7}
+%
+  |exp (1-x).in=(either (const 1) ((1-x)*)).(id + p1.(split (exp(1-x)) (inv x) ))|
+%
+\just={lei-2; lei-25 ; (Eq=2)}
+%
+  |exp (1-x).in=(either (const 1) ((1-x)*)).(id + p1).(id + (split (exp(1-x)) (inv x) ))|
+%
+ \end{eqnarray*}
+
 
 Prova:
 
@@ -749,88 +787,77 @@ Prova:
 %
 \start
 %
-  |lcbr (inv x 0 =1) (inv x (n+1)=(1-x)^(n+1))|
+  
+  |inv x 0 =1| 
+  \begin{equation}inv x (n+1)=(1-x)^{(n+1)} + inv x n\end{equation}
 
 %
-\just={lookaheap=look ; def sep c ; []=nil ; def cons ; lei-81}
+\just={lei-76 ;def succ ; introdução exp}
 %
-    |lcbr (look.nil= true) (look.cons(c,l)=sep.p1.(c,look))|    
+    |lcbr (inv x (const 0) =(const 1))  (inv x succ n = (exp (1-x) (n+1)) + inv x n) |    
 %
-\just={lei-73}
+\just={def succ}
 %
-    |lcbr (look.nil =true) (look.cons = sep.p1)|
+    |lcbr (inv x 0 =1) (inv x succ n = (exp (1-x) (succ n)) + inv x n) |
 %
-\just={lei-17 ; in lista=|(either (nil) (cons))| ; lei-76}
+\just={def add}
 %
-    |look.in=(either (const true) (sep.p1) )|
+    |lcbr (inv x 0 =1) (inv x succ n = add.(exp (1-x) (succ n))  (inv x n)) |
 %
-\just={lei-1}
+\just={def exp}
 %
-  |look.in=(either ((const true).id) (sep.id.p1) )|
+  |lcbr (inv x 0 =1) (inv x succ n =add.(split ((1-x) >< exp(1-x))  (inv x)) n)|
 %
-\just={lei-13}
+\just={lei-17; in=|(either (const 0) (succ))| ; lei-73}
 %
-  |look.in= (either ((const true).id) (sep.p1.(id >< split (look) (wc))))|
+  |inv x.in=either (const 1) (add.(split ((1-x) >< exp(1-x))  (inv x)))|
 %
-\just={lei-22 (Resultado 1)}
+\just={lei-11}
 %
-  |look.in=(either (const true) (sep.p1)).(id + (id >< split (look) (wc)))|
+  |inv x.in=either (const 1) (add.(((1-x)*)><id).(split (exp (1-x)) (inv x)))|
 %
-\just={Por Fokking}
+\just={lei-22 ; (Eq 1)}
 %
-  |wc_c.in=(either (f) (g)).(id + (id >< split (look) (wc)))|
+  |inv x.in=either (const 1) (add.(((1-x)*)><id)).(id + (split (exp (1-x)) (inv x))) |
 %
-\just={Lei-22 ; lei-17}
+\just={Fokking com Eq1 e Eq2}
 %
-  |lcbr (wc_c.nil=f) (wc_c.cons=g.(id >< split (look) (wc))|
+  |split (exp (1-x)) (inv x)= (cata (split ((either (const 1) ((1-x)*)).(id + p1)) (either (const 1) (add.(((1-x)*)><id)))))|
 %
-\just={f=0 ; lei 73}
+\just={lei-22}
 %
-  |lcbr (wc_c.nil=0) (wc_c.cons(c,l)=g.(id >< split (look) (wc))(c,l)|
+  |split (exp (1-x)) (inv x)=(cata (split (either (const 1) (((1-x)*).p1)) (either (const 0) (add.(((1-x)*)><id)))))|
 %
-\just={lei-79}
+\just={lei-28}
 %
-  |lcbr  (wc_c.nil=0) (wc_c.cons(c,l)=g.(id c >< (split (look) (wc)) l)|
+  |split (exp (1-x)) (inv x)=(cata (either (split (const 1) (const 1)) (split (((1-x)*).p1) (add.(((1-x)*)><id)))))|
 %
-\just={lei-78 ; lei 75}
+\just={cataNata para for}
 %
-  |lcbr  (wc_c.nil=0) (wc_c.cons(c,l)=g.(c >< (look l , wc l))|
+ |split (exp (1-x)) (inv x)=for (split (((1-x)*).p1) (add.(((1-x)*)><id))) (split (const 1) (const 1))|
 %
-\just={Atendendo ao código Pointwise}
+\just={lei 1}
 %
-  |lcbr (wc_c.nil=0) (wc_c.cons(c,l)=(cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2)).(c >< (look l , wc l))|
+  |p2.(split (exp (1-x)) (inv x))=p2.(for (split (((1-x)*).p1) (add.(((1-x)*)><id))) (split (const 1) (const 1)))|
 %
-\just={Lei 17}
+\just={lei 7}
 %
-  |wc_c.(either (nil) (cons(c,l)))=(either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))).(c >< (look l , wc l))|
+  |inv x=p2.(for (split (((1-x)*).p1) (add.(((1-x)*)><id))) (split (const 1) (const 1)))|
 %
-\just={encontrado o |either (f) (g)|; (resultado 2)}
+\just={lei-78 ; lei-76}
 %
-  |wc_c.in=(either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))).(id + (id >< split (look) (wc)))|
-%
-\just={Aplicando Fokking ao resultado  1 e 2}
-%
-  |split (wc_c) (l) = (cata (split (either (const true) (sep.p1)) (either (const 0) (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2)))))|
-%
-\just={lei 7 ; lei-28}
-%
-  |wc_c= p2. (cata (either (split (const true) (const 0))  (split (sep.p1)  (cond (not.sep.p1 && p1.p2) (succ.p2.p2) (p2.p2))) ))|
-%
-\just={uncurry ; lei 78}
-%
-  |wc_c= p2. (cata (either (split (const true) (const 0))  (split (sep.p1)  (cond ((uncurry(&&)).split (not.sep.p1) (p1.p2)) (succ.p2.p2) (p2.p2))) ))|
-%
-\just={lei-8 ; lei-78}
-%
-  |wc_c=p2. (cata( either (split (const true) (const 0))  (split (sep.p1)  (cond ((uncurry(&&)).(not.sep  >< p1)) (succ.p2.p2) (p2.p2))) ))|
+  |inv x=p2.(for (split (((1-x)*).p1) (add.(((1-x)*)><id))) (1,1))|
 %
 
  \end{eqnarray*}
 
 
+QuickCheck:
 
-
-
+\begin{code}
+prop_inv x = (x>1 && x<2) ==> abs((inv (inv x 5000) 5000) - x) < diferenca
+                              where diferenca = 0.000000009 
+\end{code}
 
 \subsection*{Problema 2}
 
@@ -850,13 +877,12 @@ A resolução deste exercicio consistiu em duas partes: Encontrar o worker e wra
 \start
 %
   |lcbr (lookahead []= true)(lookahead (c:l)= (c == ' ' || c == '\n' || c == '\t'))|
-
-  \end{cases}
 %
 \just={lookaheap=look ; def sep c ; []=nil ; def cons ; lei-81}
 %
     |lcbr (look.nil= true) (look.cons(c,l)=sep.p1.(c,look))|    
 %
+
 \just={lei-73}
 %
     |lcbr (look.nil =true) (look.cons = sep.p1)|
@@ -946,16 +972,6 @@ prop_wc_w_final= forAll genSafeString $ \str -> (wc_w_final str) == (length $ wo
 Consulta de:
 
 \url{https://stackoverflow.com/questions/20934506/haskell-quickcheck-how-to-generate-only-printable-strings}
-
-
-
-
-
-
-
-
-
-{ in=(either (const 0) succ); f=inv; g=macL; F(split f g)=F(split inv macL)=( id + (split inv macL)) }
 
 \subsection*{Problema 3}
 \begin{code}
@@ -1170,33 +1186,215 @@ cB_tree2Exp = cataB_tree (either (const $ Var "nil") aux)
 
 \subsection*{Problema 4}
 
+\begin{eqnarray*}
+\start
+ |lcbr (cataA ga gb = ga.(id + (cataA ga gb) >< (cataB ga gb) . outA))  (cataB ga gb = gb.(id + (cataB ga gb) . outB))|
+
+ \just{|<=>|}{ isomorfismo in out }
+ 
+ |lcbr (cataA ga gb . inA= ga.(id + (cataA ga gb) >< (cataB ga gb) ))  (cataB ga gb . inA = gb.(id + (cataB ga gb) ))|
+
+ \just{|<=>|}{44}
+\end{eqnarray*}
+
+Sabendo que o funtor em ambos os casos Ã© 1 + X e pela regra 44 do formulario conseguimos  entao retirar que F k em cada um dos catas Ã© : 
+\begin{eqnarray*}
+\start
+    |lcbr (id + cataA >< cataB)
+    (id + cataA)|
+\end{eqnarray*}
+
+Assim aplicando a formula 52 do formulario podemos construir ambos os anamorfismos 
+\begin{eqnarray*}
+ \just{|<=>|}{52}
+
+    |lcbr (outA .anaA ga gb = (id + anaA ga gb >< anaB ga gb) . ga)
+    (outB .anaA ga gb = (id + anaA ga gb) . gb)  |   
+ 
+ \just{|<=>|}{ isomorfismo in out }
+ 
+    |lcbr (anaA ga gb = inA . (id + anaA ga gb >< anaB ga gb) . ga)
+    (anaA ga gb = inB . (id + anaA ga gb) . gb)|   
+\end{eqnarray*}
+
 \begin{code}
 anaA ga gb= inA . ((id)-|- ((anaA ga gb) >< (anaB ga gb))) . ga
 anaB ga gb= inB . ((id)-|- (anaA ga gb)) . gb
 \end{code}
 
+Diagramas da funÃ§Ã£o \emph{showAlgae}:
+
+\xymatrix@@C=3cm{
+\hfill \break
+    |Algae A|
+           \ar[d]_-{|ShA|}
+&
+    |1 + A >< B|
+           \ar[d]^{|id + ShA >< ShA B|}
+           \ar[l]_-{|inA|}
+\\
+     |String|
+&
+     |1 + String >< String|
+           \ar[l]^-{|[const "A", conc.id]|}
+}
+
+\hfill \break
+\hfill \break
+
+\xymatrix@@C=3cm{
+    |B|
+           \ar[d]_-{|ShB|}
+&
+    |1 + A|
+           \ar[d]^{|id + ShB A|}
+           \ar[l]_-{|inA|}
+\\
+     |String|
+&
+     |1 + String|
+           \ar[l]^-{|[const "B", id]|}
+}
+
+
+Chegamos assim a soluÃ§ao abaixo : 
 \begin{code}
-
-generateAlgae = anaA ((id -|- (split id id)). outNat) outNat
-
 showAlgae = cataA (either (const "A") (conc.id)) (either (const "B") (id))
+\end{code}
 
+\hfill \break
+\hfill \break
+
+Assim podemos dizer que 
+\begin{spec}
+showAlgae = cataA ga gb 
+\end{spec}
+em que ga Ã© 
+\begin{spec}
+either (const "A") (conc.id)
+\end{spec}
+ e gb Ã© 
+ \begin{spec}
+ outNat 
+ \end{spec}
+Chegamos a esta conclusao atravez dos diagramas relalizados atravez de tipos deduzindo assim o nosso programa 
+Diagramas da funÃ§Ã£o \emph{generateAlgae}:
+
+\hfill \break
+
+\xymatrix@@C=3cm{
+    |Algae A|
+           \ar[r]_-{|outA|}
+&
+    |1 + A >< B|
+\\
+     |N0|
+           \ar[u]^-{|GenA A|}
+           \ar[r]_-{|outNat|}
+&
+     |1 + N0|
+           \ar[r]_{|id + <id ,id>|}
+&
+     |1 + N0><N0|
+           \ar[ul]_{|id + GenA A >< GenA B|}
+}
+
+\hfill \break
+\hfill \break
+
+\xymatrix@@C=3cm{
+    |B|
+           \ar[r]_-{|outA|}
+&
+    |1 + A|
+\\
+     |N0|
+           \ar[r]^-{|outNat|}
+           \ar[u]^-{|GenB B|}
+&
+     |1 + N0|
+           \ar[u]_{|id + GenB A|}
+}
+
+\hfill \break
+\hfill \break
+
+Assim podemos dizer que 
+\begin{spec}
+generateAlgae = anaA ga gb 
+\end{spec}
+em que ga Ã© 
+\begin{spec}
+((id + <id,id>). outNat)
+\end{spec}
+ e gb Ã© 
+ \begin{spec}
+ outNat 
+ \end{spec}
+Chegamos a esta conclusao atravez dos diagramas relalizados atravez de tipos deduzindo assim o nosso programa 
+
+
+\begin{code}
+generateAlgae = anaA ((id -|- (split id id)). outNat) outNat
+\end{code}
+
+\hfill \break
+Podemos ver aqui o nosso teste de QuickCheck onde e utilizado uma gama de valores entre maior ou igual a 0 uma vez que se trata do menor numero possivel de input e 20 uma vez que apartir deste numero os testes comeÃ§am a demorar uma extensao de tempo consideravel . 
+
+
+\begin{code}
 prop_Algae:: Int -> Property 
 prop_Algae x = ( x>= 0 && x<20) ==> (a x) == ( b x ) 
     where
         a =   length . showAlgae . generateAlgae  
         b =  fromInteger . fib.succ  . toInteger 
 
-
 \end{code}
+
 
 \subsection*{Problema 5}
+Decidimos primeiro resolver este problema como se fosse nÃ£o monÃ¡dico, como foi sugerido pelo Professor JosÃ© Nuno Oliveira. 
+Assim, foram definidas funÃ§Ãµes nÃ£o monÃ¡dicas equivalentes Ã s fornecidas no enunciado, possibilitando testar o raciocinio necessÃ¡rio para implementar a versÃ£o monÃ¡dica. 
 
 \begin{code}
-permuta = undefined
-
-eliminatoria = undefined
+getH :: [a] -> (a,[a])
+getH (h:t) = (h,t)
 \end{code}
+
+
+\begin{code}
+permutaN [] = []
+permutaN a = (c:b)
+        where 
+        (c,d)= getH(a)
+        b = permutaN (d)
+\end{code}
+
+\begin{code}
+jogoN :: (a,a)-> a
+jogoN (a,b) = a
+\end{code}
+
+\begin{code}
+eliminatoriaN (Leaf x) = x
+eliminatoriaN (Fork (x,y)) = jogoN(eliminatoriaN(x),eliminatoriaN(y))
+\end{code}
+
+\begin{code}
+testePreMonad = eliminatoriaN $ sorteio $ equipas 
+\end{code}
+
+Apos implementado esta versÃ£o foi utilizado os slides "Monads made easy" disponibilizados na pagina da disciplina para a "monadification" do codigo. 
+\begin{code}
+permuta []= return []
+permuta a = do {(c,d) <-getR(a) ;  b <-permuta (d); return (c:b) }
+\end{code}
+
+\begin{code}
+eliminatoria (Leaf x) =  return x 
+eliminatoria (Fork (x,y)) = do { a <- eliminatoria(x); b <- eliminatoria(y) ; jogo(a,b); }
+\end{code}
+
 
 %----------------- Fim do anexo cpm soluções propostas ------------------------%
 
