@@ -186,6 +186,8 @@ import Test.QuickCheck hiding ((><))
 import System.Random  hiding (split)
 import GHC.IO.Exception
 import System.IO.Unsafe
+import Data.Maybe
+import Data.Either
 \end{code}
 
 \noindent Abra o ficheiro \texttt{cp1617t.lhs} no seu editor de texto preferido
@@ -823,19 +825,49 @@ hyloB_tree :: ((Either () (c , [(b, c)])) -> c) -> (a -> Either () (a , [(b , a)
 hyloB_tree h g = cataB_tree h . anaB_tree g 
 
 instance Functor B_tree
-         where fmap f = undefined
+         where fmap f = cataB_tree (inB_tree . baseB_tree f id)
 
 inordB_tree :: B_tree t -> [t]
-inordB_tree = cataB_tree (either nil (conc . (id >< (concat . (map cons)))))
+inordB_tree = cataB_tree inordB_tree_aux
 
-largestBlock = undefined
+inordB_tree_aux :: Either () ([a], [(a,[a])]) -> [a]
+inordB_tree_aux = (either nil (conc . (id >< (concat . (map cons)))))
 
-mirrorB_tree = undefined
+largestBlock :: B_tree a -> Int
+largestBlock = cataB_tree (either (const 0) ((uncurry max) . (id >< ((uncurry max) . (split length (maximum . (map p2)))))))
 
-lsplitB_tree = undefined
+-- mirrorB_tree----------------------------------------------
+mirrorB_tree :: B_tree a -> B_tree a
+mirrorB_tree = anaB_tree g
+    where   g = (id -|- (toTuple . reverse . toEither)) . outB_tree
 
-qSortB_tree = undefined
+toTuple :: [Either a b] -> (b, [(a,b)])
+toTuple = (split (head . p2) (uncurry zip . (id >< tail))) . partitionEithers
 
+toEither :: (b, [(a,b)]) -> [Either a b]
+toEither = cons . (i2 >< (concat . map listTuple))
+
+listTuple :: (a,b) -> [Either a b]
+listTuple = cons . (i1 >< (cons . (split i2 (const []))))
+
+------------------------------------------------------------
+qSortB_tree :: Ord a => [a] -> [a]
+qSortB_tree = hyloB_tree inordB_tree_aux lsplitB_tree
+
+lsplitB_tree :: Ord a => [a] -> Either () ([a], [(a, [a])])
+lsplitB_tree [] = i1 ()
+lsplitB_tree (h:t) = i2 (l,[(h,r)])
+        where (l,r) = mypart (< h) t
+
+mypart :: (a -> Bool) -> [a] -> ([a],[a])
+mypart p = cataList (either (split nil nil) (cond (p . p1) toFST toSND))
+
+toFST :: (a,([a],[a])) -> ([a],[a])
+toFST = split (cons . (id >< p1)) (p2 . p2)
+
+toSND :: (a,([a],[a])) -> ([a],[a])
+toSND = split (p1 . p2) (cons . (id >< p2))
+------------------------------------------------------------
 dotB_tree = undefined
 
 cB_tree2Exp = undefined
