@@ -26,6 +26,7 @@
 %format . = "\comp "
 %format (kcomp (f)(g)) = f "\kcomp " g
 %format -|- = "+"
+%format NAT = "\mathbb{N}_0"
 %format conc = "\mathsf{conc}"
 %format summation = "{\sum}"
 %format (either (a) (b)) = "\alt{" a "}{" b "}"
@@ -35,6 +36,7 @@
 %format TLTree = "\mathsf{TLTree}"
 %format cond p f g = "\mcond{" p "}{" f "}{" g "}"
 %format (split (x) (y)) = "\conj{" x "}{" y "}"
+%format above = "\textsuperscript{*}"
 %format for f i = "\mathsf{for}\ " f "\ " i
 %format B_tree = "\mathsf{B}\mbox{-}\mathsf{tree} "
 \def\ana#1{\mathopen{[\!(}#1\mathclose{)\!]}}
@@ -89,13 +91,13 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-\textbf{Grupo} nr. & 99 (preencher)
+\textbf{Grupo} nr. & 13
 \\\hline
 a77486 & Jose Pedro Resende
 \\
 a79007 & Patrícia Barreira	
 \\
-a33333 & Nome3 (preencher)	
+a78225 & Miguel Leite
 \end{tabular}
 \end{center}
 
@@ -956,6 +958,8 @@ Consulta de:
 \subsection*{Problema 3}
 \begin{code}
 
+--(1)------------------------------------------------------------
+
 outB_tree :: B_tree a -> Either () (B_tree a , [(a, B_tree a)]) 
 outB_tree Nil = i1 ()
 outB_tree (Block t l) = i2 (t, l)
@@ -981,16 +985,63 @@ hyloB_tree h g = cataB_tree h . anaB_tree g
 instance Functor B_tree
          where fmap f = cataB_tree (inB_tree . baseB_tree f id)
 
+--(2)------------------------------------------------------------
+\end{code}
+\hfill \break
+Diagrama da função \emph{inordB\_tree}:
+\hfill \break
+
+\xymatrix@@C=3cm{
+\hfill \break
+    |B_tree a|
+           \ar[d]_-{|outB_tree|}
+           \ar[r]_-{|cata (g) = inordB_tree|}
+&
+    |L|
+\\
+    |1 + B_tree a >< (a >< B_tree a)above|
+           \ar[r]^-{|id + cata (g) >< map(id >< cata(g))|}
+&
+    |1 + L >< (a >< L)above|
+           \ar[u]^-{|g|}
+}
+
+\begin{code}
 inordB_tree :: B_tree t -> [t]
 inordB_tree = cataB_tree inordB_tree_gene
 
 inordB_tree_gene :: Either () ([a], [(a,[a])]) -> [a]
 inordB_tree_gene = (either nil (conc . (id >< (concat . (map cons)))))
 
+--(3)------------------------------------------------------------
+\end{code}
+
+\hfill \break
+Diagrama da função \emph{largestBlock}:
+\hfill \break
+
+\xymatrix@@C=3cm{
+\hfill \break
+    |B_tree a|
+           \ar[d]_-{|outB_tree|}
+           \ar[r]_-{|cata (g) = largestBlock|}
+&
+    |NAT|
+\\
+    |1 + B_tree a >< (a >< B_tree a)above|
+           \ar[r]^-{|id + cata (g) >< map(id >< cata(g))|}
+&
+    |1 + NAT >< (a >< NAT)above|
+           \ar[u]^-{|g|}
+}
+\begin{code}
 largestBlock :: B_tree a -> Int
 largestBlock = cataB_tree (either (const 0) ((uncurry max) . (id >< ((uncurry max) . (split length (maximum . (map p2)))))))
 
--- mirrorB_tree----------------------------------------------
+--(4)------------------------------------------------------------
+\end{code}
+
+\begin{code}
 mirrorB_tree :: B_tree a -> B_tree a
 mirrorB_tree = anaB_tree g
     where   g = (id -|- (toTuple . reverse . toEither)) . outB_tree
@@ -1004,7 +1055,8 @@ toEither = cons . (i2 >< (concat . map listTuple))
 listTuple :: (a,b) -> [Either a b]
 listTuple = cons . (i1 >< (cons . (split i2 (const []))))
 
-------------------------------------------------------------
+--(5)------------------------------------------------------------
+
 qSortB_tree :: Ord a => [a] -> [a]
 qSortB_tree = hyloB_tree inordB_tree_gene lsplitB_tree
 
@@ -1012,6 +1064,28 @@ lsplitB_tree :: Ord a => [a] -> Either () ([a], [(a, [a])])
 lsplitB_tree [] = i1 ()
 lsplitB_tree (h:t) = i2 (l,[(h,r)])
         where (l,r) = mypart (< h) t
+
+\end{code}
+
+\hfill \break
+Diagrama da função \emph{mypart}:
+\hfill \break
+
+\xymatrix@@C=3cm{
+\hfill \break
+    |L|
+           \ar[d]_-{|outList|}
+           \ar[r]_-{|cata (g) = mypart p|}
+&
+    |(L1)above >< (L2)above|
+\\
+    |1 + a >< L|
+           \ar[r]^-{|id + id >< cata(g))|}
+&
+    |1 + a >< ((L1)above >< (L2)above)|
+           \ar[u]^-{|g|}
+}
+\begin{code}
 
 mypart :: (a -> Bool) -> [a] -> ([a],[a])
 mypart p = cataList (either (split nil nil) (cond (p . p1) toFST toSND))
@@ -1021,7 +1095,9 @@ toFST = split (cons . (id >< p1)) (p2 . p2)
 
 toSND :: (a,([a],[a])) -> ([a],[a])
 toSND = split (p1 . p2) (cons . (id >< p2))
-------------------------------------------------------------
+
+--(6)------------------------------------------------------------
+
 dotB_tree :: Show a => B_tree a -> IO ExitCode
 dotB_tree = dotpict . bmap nothing (Just . show) . cB_tree2Exp
 
