@@ -1022,9 +1022,13 @@ toFST = split (cons . (id >< p1)) (p2 . p2)
 toSND :: (a,([a],[a])) -> ([a],[a])
 toSND = split (p1 . p2) (cons . (id >< p2))
 ------------------------------------------------------------
-dotB_tree = undefined
+dotB_tree :: Show a => B_tree a -> IO ExitCode
+dotB_tree = dotpict . bmap nothing (Just . show) . cB_tree2Exp
 
-cB_tree2Exp = undefined
+cB_tree2Exp :: B_tree a -> Exp [Char] [a]
+cB_tree2Exp = cataB_tree (either (const $ Var "nil") aux)
+        where aux = (uncurry Term) . (split ((map p1) . p2) (cons . (id >< ((map p2)))))
+
 \end{code}
 
 \subsection*{Problema 4}
