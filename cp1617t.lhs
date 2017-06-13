@@ -790,10 +790,10 @@ instance Functor B_tree
          where fmap f = cataB_tree (inB_tree . baseB_tree f id)
 
 inordB_tree :: B_tree t -> [t]
-inordB_tree = cataB_tree inordB_tree_aux
+inordB_tree = cataB_tree inordB_tree_gene
 
-inordB_tree_aux :: Either () ([a], [(a,[a])]) -> [a]
-inordB_tree_aux = (either nil (conc . (id >< (concat . (map cons)))))
+inordB_tree_gene :: Either () ([a], [(a,[a])]) -> [a]
+inordB_tree_gene = (either nil (conc . (id >< (concat . (map cons)))))
 
 largestBlock :: B_tree a -> Int
 largestBlock = cataB_tree (either (const 0) ((uncurry max) . (id >< ((uncurry max) . (split length (maximum . (map p2)))))))
@@ -814,7 +814,7 @@ listTuple = cons . (i1 >< (cons . (split i2 (const []))))
 
 ------------------------------------------------------------
 qSortB_tree :: Ord a => [a] -> [a]
-qSortB_tree = hyloB_tree inordB_tree_aux lsplitB_tree
+qSortB_tree = hyloB_tree inordB_tree_gene lsplitB_tree
 
 lsplitB_tree :: Ord a => [a] -> Either () ([a], [(a, [a])])
 lsplitB_tree [] = i1 ()
