@@ -790,7 +790,10 @@ instance Functor B_tree
          where fmap f = cataB_tree (inB_tree . baseB_tree f id)
 
 inordB_tree :: B_tree t -> [t]
-inordB_tree = cataB_tree (either nil (conc . (id >< (concat . (map cons)))))
+inordB_tree = cataB_tree inordB_tree_aux
+
+inordB_tree_aux :: Either () ([a], [(a,[a])]) -> [a]
+inordB_tree_aux = (either nil (conc . (id >< (concat . (map cons)))))
 
 largestBlock :: B_tree a -> Int
 largestBlock = cataB_tree (either (const 0) ((uncurry max) . (id >< ((uncurry max) . (split length (maximum . (map p2)))))))
@@ -810,12 +813,23 @@ listTuple :: (a,b) -> [Either a b]
 listTuple = cons . (i1 >< (cons . (split i2 (const []))))
 
 ------------------------------------------------------------
+qSortB_tree :: Ord a => [a] -> [a]
+qSortB_tree = hyloB_tree inordB_tree_aux lsplitB_tree
 
-lsplitB_tree :: [a] -> Either () ([a], [(a, [a])])
-lsplitB_tree = undefined
+lsplitB_tree :: Ord a => [a] -> Either () ([a], [(a, [a])])
+lsplitB_tree [] = i1 ()
+lsplitB_tree (h:t) = i2 (l,[(h,r)])
+        where (l,r) = mypart (< h) t
 
-qSortB_tree = undefined
+mypart :: (a -> Bool) -> [a] -> ([a],[a])
+mypart p = cataList (either (split nil nil) (cond (p . p1) toFST toSND))
 
+toFST :: (a,([a],[a])) -> ([a],[a])
+toFST = split (cons . (id >< p1)) (p2 . p2)
+
+toSND :: (a,([a],[a])) -> ([a],[a])
+toSND = split (p1 . p2) (cons . (id >< p2))
+------------------------------------------------------------
 dotB_tree = undefined
 
 cB_tree2Exp = undefined
