@@ -1263,7 +1263,7 @@ cB_tree2Exp = cataB_tree (either (const (Var "nil")) aux)
  \just{|<=>|}{44}
 \end{eqnarray*}
 
-Sabendo que o funtor em ambos os casos Ã© 1 + X e pela regra 44 do formulario conseguimos  entao retirar que F k em cada um dos catas Ã© : 
+Sabendo que o funtor em ambos os casos é 1 + X e pela regra 44 do formulario conseguimos  entao retirar que F k em cada um dos catas é : 
 \begin{eqnarray*}
 \start
     |lcbr (id + cataA >< cataB)
@@ -1288,7 +1288,7 @@ anaA ga gb= inA . ((id)-|- ((anaA ga gb) >< (anaB ga gb))) . ga
 anaB ga gb= inB . ((id)-|- (anaA ga gb)) . gb
 \end{code}
 
-Diagramas da funÃ§Ã£o \emph{showAlgae}:
+Diagramas da funáção \emph{showAlgae}:
 
 \xymatrix@@C=3cm{
 \hfill \break
@@ -1323,7 +1323,7 @@ Diagramas da funÃ§Ã£o \emph{showAlgae}:
 }
 
 
-Chegamos assim a soluÃ§ao abaixo : 
+Chegamos assim a soluáçao abaixo : 
 \begin{code}
 showAlgae = cataA (either (const "A") (conc.id)) (either (const "B") (id))
 \end{code}
@@ -1335,16 +1335,16 @@ Assim podemos dizer que
 \begin{spec}
 showAlgae = cataA ga gb 
 \end{spec}
-em que ga Ã© 
+em que ga é 
 \begin{spec}
 either (const "A") (conc.id)
 \end{spec}
- e gb Ã© 
+ e gb é 
  \begin{spec}
  outNat 
  \end{spec}
 Chegamos a esta conclusao atravez dos diagramas relalizados atravez de tipos deduzindo assim o nosso programa 
-Diagramas da funÃ§Ã£o \emph{generateAlgae}:
+Diagramas da funáção \emph{generateAlgae}:
 
 \hfill \break
 
@@ -1389,11 +1389,11 @@ Assim podemos dizer que
 \begin{spec}
 generateAlgae = anaA ga gb 
 \end{spec}
-em que ga Ã© 
+em que ga é 
 \begin{spec}
 ((id + <id,id>). outNat)
 \end{spec}
- e gb Ã© 
+ e gb é 
  \begin{spec}
  outNat 
  \end{spec}
@@ -1405,7 +1405,7 @@ generateAlgae = anaA ((id -|- (split id id)). outNat) outNat
 \end{code}
 
 \hfill \break
-Podemos ver aqui o nosso teste de QuickCheck onde e utilizado uma gama de valores entre maior ou igual a 0 uma vez que se trata do menor numero possivel de input e 20 uma vez que apartir deste numero os testes comeÃ§am a demorar uma extensao de tempo consideravel . 
+Podemos ver aqui o nosso teste de QuickCheck onde e utilizado uma gama de valores entre maior ou igual a 0 uma vez que se trata do menor numero possivel de input e 20 uma vez que apartir deste numero os testes comeáçam a demorar uma extensao de tempo consideravel . 
 
 
 \begin{code}
@@ -1419,8 +1419,8 @@ prop_Algae x = ( x>= 0 && x<20) ==> (a x) == ( b x )
 
 
 \subsection*{Problema 5}
-Decidimos primeiro resolver este problema como se fosse nÃ£o monÃ¡dico, como foi sugerido pelo Professor JosÃ© Nuno Oliveira. 
-Assim, foram definidas funÃ§Ãµes nÃ£o monÃ¡dicas equivalentes Ã s fornecidas no enunciado, possibilitando testar o raciocinio necessÃ¡rio para implementar a versÃ£o monÃ¡dica. 
+Decidimos primeiro resolver este problema como se fosse não monádico, como foi sugerido pelo Professor José Nuno Oliveira. 
+Assim, foram definidas funções não monádicas equivalentes á s fornecidas no enunciado, possibilitando testar o raciocinio necessário para implementar a versão monádica. 
 
 \begin{code}
 getH :: [a] -> (a,[a])
@@ -1450,7 +1450,7 @@ eliminatoriaN (Fork (x,y)) = jogoN(eliminatoriaN(x),eliminatoriaN(y))
 testePreMonad = eliminatoriaN $ sorteio $ equipas 
 \end{code}
 
-Apos implementado esta versÃ£o foi utilizado os slides "Monads made easy" disponibilizados na pagina da disciplina para a "monadification" do codigo. 
+Apos implementado esta versão foi utilizado os slides "Monads made easy" disponibilizados na pagina da disciplina para a "monadification" do codigo. 
 \begin{code}
 permuta []= return []
 permuta a = do {(c,d) <-getR(a) ;  b <-permuta (d); return (c:b) }
