@@ -1217,9 +1217,52 @@ lsplitB_tree (h:t) = i2 (l,[(h,r)])
 mypart :: (a -> Bool) -> [a] -> ([a],[a])
 mypart p = cataList (either (split nil nil) (cond (p . p1) toFST toSND))
 
+\end{code}
+\xymatrix@@C=3cm{
+&
+    |a >< ((a)above >< (a)above)|
+           \ar[ld]_-{|id >< p1|}
+           \ar[rdd]_-{|p2 . p2|}
+           \ar[dd]_-{|split (cons . (id >< p1)) (p2 . p2)|}
+\\
+    |a >< (a)above|
+           \ar[d]_-{|cons|}
+\\
+    |(a)above|
+&
+    |(a)above >< (a)above|
+           \ar[r]_-{|p2|}
+           \ar[l]_-{|p1|}
+&
+    |(a)above|
+}
+\begin{code}
+
 toFST :: (a,([a],[a])) -> ([a],[a])
 toFST = split (cons . (id >< p1)) (p2 . p2)
 
+\end{code}
+\xymatrix@@C=3cm{
+&
+    |a >< ((a)above >< (a)above)|
+           \ar[ldd]_-{|p1 . p2|}
+           \ar[rd]_-{|id >< p2|}
+           \ar[dd]_-{|split (p1 . p2) (cons . (id >< p2))|}
+\\
+&
+&
+    |a >< (a)above|
+           \ar[d]_-{|cons|}
+\\
+    |(a)above|
+&
+    |(a)above >< (a)above|
+           \ar[r]_-{|p2|}
+           \ar[l]_-{|p1|}
+&
+    |(a)above|
+}
+\begin{code}
 toSND :: (a,([a],[a])) -> ([a],[a])
 toSND = split (p1 . p2) (cons . (id >< p2))
 
@@ -1229,18 +1272,52 @@ dotB_tree :: Show a => B_tree a -> IO ExitCode
 dotB_tree = dotpict . bmap nothing (Just . show) . cB_tree2Exp
 
 \end{code}
-\xymatrix@@C=3cm{
+\hfill \break
+cB\_tree2Exp:
+\hfill \break
+\xymatrix@@C=5cm{
     |B_tree a|
            \ar[d]_-{|outB_tree|}
-           \ar[r]_-{|cata (g) = cB_tree2Exp|}
+           \ar[r]_-{|cata (either (const (Var "Nil")) aux) = cB_tree2Exp|}
 &
     |Exp String (a)above|
 \\
     |1 + B_tree a >< (a >< B_tree a)above|
-           \ar[r]^-{|id + cata (g) >< map(id >< cata(g))|}
+           \ar[r]^-{|id + cB_tree2Exp >< map(id >< cB_tree2Exp)|}
 &
-    |1 + (Exp String (a)above) >< (a >< (Exp String (a)above()above|
-           \ar[u]^-{|g|}
+    |1 + (Exp String (a)above) >< (a >< (Exp String (a)above))above|
+           \ar[u]^-{|either (const (Var "Nil")) aux|}
+}
+\hfill \break
+Aux:
+\hfill \break
+\xymatrix@@C=0.5cm{
+&
+    |(Exp String (a)above) >< (a >< Exp String (a)above)above|
+           \ar[ld]_-{|p2|}
+           \ar[rd]_-{|id >< map p2|}
+           \ar[ddd]_-{|split (map p1 . p2) (cons . (id >< map p2))|}
+\\
+    |(a >< Exp String (a)above)above|
+           \ar[d]_-{|map p1|}
+&
+&
+    |(Exp String (a)above) >< (Exp String (a)above)above|
+           \ar[d]_-{|cons|}
+\\
+    |(a)above|
+&
+&
+    |(Exp String (a)above)above|
+\\
+&
+    |(a)above >< (Exp String (a)above)above|
+           \ar[ru]_-{|p2|}
+           \ar[lu]_-{|p1|}
+           \ar[d]_-{|uncurry Term|}
+\\
+&
+    |Exp String (a)above|
 }
 
 \begin{code}
